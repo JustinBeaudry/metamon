@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Enum.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="MissingIndexError_MissingIndexError.html">MissingIndexError</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module.exports.html">exports</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module.exports_module.exports.html">exports</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="UnsupportedError_UnsupportedError.html">UnsupportedError</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#add">add</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#addView">addView</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#clear">clear</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#contains">contains</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#count">count</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getView">getView</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#remove">remove</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#set">set</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#toArray">toArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#toJSON">toJSON</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#toObject">toObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#update">update</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Enum.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {UnsupportedError} from './errors';
+import Serializable from './Serializable';
+import {getType} from './utils';
+
+export default class Enum extends Serializable {
+  /**
+   *  An Enum constructor can take many different types to construct an Enum from:
+   *
+   * * String
+   * * Comma-Delimited String
+   * * Object
+   * * Array
+   * * Array of Objects
+   * * Array of Strings
+   * * Array of Arrays of Object
+   * * etc.
+   *
+   * Once created an Enum is immutable.
+   *
+   * Enums inherit from the Serializable class so it also has:
+   *
+   * * `toObject()`
+   * * `toJSON()`
+   *
+   * @example
+   * const states = new Enum([
+   *   'OPEN',
+   *   'IN_PROGRESS',
+   *   'CLOSED'
+   * ]);
+   *
+   * console.info(states.OPEN) // 'OPEN'
+   *
+   * states.DONE = 'DONE'
+   * console.info(states.DONE) // undefined
+   *
+   * const other_states = new Enum({
+   *   'START': 'START',
+   *   'IN_PROGRESS': 'IN_PROGRESS',
+   *   'DONE': 'DONE'
+   * })
+   *
+   * console.info(other_states.START) // 'START'
+   *
+   * other_states.DONE = 'DONE';
+   * console.info(other_states.DONE) // undefined
+   *
+   * @summary
+   * An Enum helper class that allows the user of many various setting methods
+   *
+   * @param {Object|Array&lt;Object|String>|String} values
+   * @throws {UnsupportedError}
+   */
+  constructor(values) {
+    super();
+    set.call(this, values);
+    Object.freeze(this);
+  }
+}
+
+function set(values) {
+  switch (getType(values)) {
+    case 'function':
+      throw new UnsupportedError(values.name);
+    case 'promise':
+      throw new UnsupportedError(typeof values);
+    case 'array':
+      setFromArray.call(this, values);
+      break;
+    case 'object':
+      setFromObject.call(this, values);
+      break;
+    case 'string':
+      if (values.indexOf(',') > -1) {
+        setFromArray.call(this, values.split(','));
+      } else {
+        setFromString.call(this, values);
+      }
+      break;
+    default:
+      throw new UnsupportedError(typeof values);
+  }
+}
+
+function setFromArray(values) {
+  for (let value of values) {
+    set.call(this, value);
+  }
+}
+
+function setFromObject(values) {
+  for (let key of Object.keys(values)) {
+    Object.assign(this, {
+      [key]: values[key]
+    });
+  }
+}
+
+function setFromString(value) {
+  value = value.trim();
+  Object.assign(this, {
+    [value]: value
+  });
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon May 28 2018 22:10:23 GMT-0700 (PDT) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "source": {
+    "include": [
+      "src/Model.js",
+      "src/Collection.js",
+      "src/Enum.js",
+      "src/Serializable.js",
+      "src/errors.js"
+    ],
+    "exclude": [
+      "lib/*.js",
+      "src/utils.js",
+      "tests/",
+      "node_modules/",
+      "dist/"
+    ]
+  },
+  "templates": {
+    "referenceTitle": "Metamon"
+  },
+  "opts": {
+    "template": "node_modules/minami",
+    "destination": "docs",
+    "readme": "README.md"
+  }
+}

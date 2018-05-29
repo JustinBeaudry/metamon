@@ -1,0 +1,18 @@
+# artifacts
+.DS_Store
+.svn
+*~
+*.swp
+*.rbc
+
+# node
+/node_modules
+
+#coverage reports
+/.nyc_output
+
+# logs
+npm-debug.log
+
+# Intellij
+.idea/

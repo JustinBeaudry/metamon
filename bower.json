@@ -1,0 +1,23 @@
+{
+  "name": "metamon",
+  "description": "model, and collection library for class based or pojo models",
+  "main": "dist/metamon.min.js",
+  "authors": [
+    "Justin Beaudry <beaudry.justin@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "models",
+    "collections",
+    "model",
+    "MVC"
+  ],
+  "homepage": "https://github.com/JustinBeaudry/metamon",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
