@@ -13,7 +13,7 @@ export default [
     input: './index.es6.js',
     output: {
       name: 'Metamon',
-      file: 'metamon/metamon.min.js',
+      file: 'dist/metamon.min.js',
       format: 'iife'
     },
     plugins: [

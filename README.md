@@ -3,6 +3,8 @@ Metamon
 
 [![npm version](https://badge.fury.io/js/metamon.svg)](https://badge.fury.io/js/metamon) [![Build Status](https://travis-ci.org/JustinBeaudry/metamon.svg?branch=master)](https://travis-ci.org/JustinBeaudry/metamon) [![Coverage Status](https://coveralls.io/repos/github/JustinBeaudry/metamon/badge.svg?branch=master)](https://coveralls.io/github/JustinBeaudry/metamon?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/8573b69add63f7c41c66/maintainability)](https://codeclimate.com/github/JustinBeaudry/metamon/maintainability)
 
+![Ditto](https://media.giphy.com/media/uQZTgSuGZMTHG/giphy.gif)
+
 Share Data Representations (Models, Collections) between Node and the Browser
 
 Read the [DOCS](https://justinbeaudry.github.io/metamon/)
