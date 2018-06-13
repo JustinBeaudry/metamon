@@ -2,7 +2,7 @@ import {UnsupportedError} from './errors';
 import Serializable from './Serializable';
 import {getType} from './utils';
 
-export default class Enum extends Serializable {
+class Enum extends Serializable {
   /**
    *  An Enum constructor can take many different types to construct an Enum from:
    *
@@ -102,3 +102,5 @@ function setFromString(value) {
     [value]: value
   });
 }
+
+export default Enum;

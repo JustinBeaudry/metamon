@@ -2,7 +2,7 @@ import {unix} from './utils';
 import Serializable from './Serializable';
 import uuid from 'uuid';
 import _ from 'lodash';
-import Enjoi from 'enjoi-browser';
+import Enjoi from 'enjoi-browser/lib/enjoi';
 
 const _defaults = Symbol('defaults');
 const _schema = Symbol('schema');
@@ -11,7 +11,7 @@ const _views = Symbol('views');
 /**
  * @extends Serializable
  */
-export default class Model extends Serializable {
+class Model extends Serializable {
   /**
    *
    * A Model is really just sugar over a class(object).
@@ -189,3 +189,5 @@ export default class Model extends Serializable {
     }
   }
 }
+
+export default Model;

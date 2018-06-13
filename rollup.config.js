@@ -40,11 +40,10 @@ export default [
       json(),
       eslint({
         fix: true
-      }),
-      cleanup(),
-      uglify()
+      })
     ]
-  }, {
+  },
+  {
     // Un-Minified
     input: './index.es6.js',
     output: {
@@ -79,7 +78,8 @@ export default [
       }),
       cleanup()
     ]
-  }, {
+  },
+  {
     // CommonJS
     input: './index.es6.js',
     output: {

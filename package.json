@@ -38,7 +38,7 @@
   },
   "homepage": "https://justinbeaudry.github.io/metamon/",
   "dependencies": {
-    "enjoi-browser": "1.x.x",
+    "enjoi-browser": "^1.1.0",
     "lodash": "4.x.x",
     "uuid": "3.x.x"
   },
@@ -61,7 +61,6 @@
     "minami": "1.x.x",
     "nyc": "11.x.x",
     "rollup": "0.x.x",
-    "rollup-plugin-alias": "^1.4.0",
     "rollup-plugin-babel": "2.x.x",
     "rollup-plugin-cleanup": "^3.0.0-beta.1",
     "rollup-plugin-commonjs": "8.x.x",
@@ -69,7 +68,6 @@
     "rollup-plugin-json": "2.x.x",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-resolve": "3.x.x",
-    "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "3.x.x",
     "tap-notify": "1.x.x"
   },

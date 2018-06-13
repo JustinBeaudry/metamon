@@ -1,6 +1,9 @@
 import {toJSON} from './utils';
 
-export default class Serializable {
+/**
+ * @class Serializable
+ */
+class Serializable {
   /**
    *
    * converts a class to an object
@@ -21,3 +24,5 @@ export default class Serializable {
     return toJSON(this.toObject());
   }
 }
+
+export default Serializable;

@@ -8,7 +8,7 @@ import {toJSON, getType} from './utils';
  *
  * @extends Serializable
  */
-export default class Collection extends Serializable {
+class Collection extends Serializable {
   /**
    *
    * Collection is a dictionary helper class. A Collection requires a model to maintain consistency
@@ -245,3 +245,5 @@ function convertToModel(model) {
   }
   return model;
 }
+
+export default Collection;
