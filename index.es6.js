@@ -1,11 +1,4 @@
-import Model from './src/Model';
-import Collection from './src/Collection';
-import Enum from './src/Enum';
-import Serializable from './src/Serializable';
-
-export default {
-  Model,
-  Collection,
-  Enum,
-  Serializable
-}
+export Model from './src/Model';
+export Collection from './src/Collection';
+export Enum from './src/Enum';
+export Serializable from './src/Serializable';
