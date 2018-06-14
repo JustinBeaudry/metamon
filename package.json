@@ -1,6 +1,6 @@
 {
   "name": "metamon",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "model, and collection library for class based or pojo models",
   "main": "index.js",
   "browser": "dist/metamon.min.js",
