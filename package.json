@@ -38,6 +38,7 @@
   },
   "homepage": "https://justinbeaudry.github.io/metamon/",
   "dependencies": {
+    "enjoi-browser": "^1.1.0",
     "joi-browser": "13.x.x",
     "lodash": "4.x.x",
     "uuid": "3.x.x"
