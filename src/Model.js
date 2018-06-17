@@ -47,6 +47,19 @@ class Model extends Serializable {
    *            default: 'normal'
    *          }
    *        },
+   *        schemaOptions: {
+   *          types: {
+   *            thing: Joi.any()
+   *            email: {
+   *              email: Joi.string().email()
+   *            }
+   *          },
+   *          refineType: (type, format => {
+   *            if (type === 'string' && format === 'email') {
+   *              return 'email';
+   *            }
+   *          }
+   *        },
    *        views: {
    *          client: {
    *            blacklist: ['age', 'type']
@@ -92,6 +105,7 @@ class Model extends Serializable {
       created: unix()
     },
     schema: null,
+    schemaOptions: null,
     views: null
   }) {
     super();
@@ -101,8 +115,8 @@ class Model extends Serializable {
       this[_schema] = Enjoi(Object.assign({}, {
         type: 'object',
         properties: options.schema,
-        strictMode: true
-      }));
+        strictMode: true,
+      }), Object.assign({}, options.schemaOptions));
     }
     if (options.views) {
       Object.keys(options.views).forEach(name => {

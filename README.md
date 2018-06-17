@@ -5,14 +5,14 @@ Metamon
 
 ![Ditto](https://media.giphy.com/media/uQZTgSuGZMTHG/giphy.gif)
 
-Share Data Representations (Models, Collections) between Node and the Browser
+Share Data Representations (Models, Collections) Node and the Browser
 
 Read the [DOCS](https://justinbeaudry.github.io/metamon/)
 
 ## Why?
 
-Metamon is a toolkit for consistency with the representations of your data between Browsers and Node Servers. It provides methods for creating these
-representations and for indexing these representations.
+Metamon is a toolkit for consistency with the representations of your data between Node applications and Browsers. 
+It provides methods for creating, indexing, manipulating, and maintaining consistency with the representations. 
 
 ## Installation
 
@@ -52,17 +52,17 @@ Read the [DOCS](https://justinbeaudry.github.io/metamon/)
 
 ### Using in Redux
 
-Classes as state really don't play too well with redux. SEE: [Why Not to Store Objects In Redux](https://medium.com/collaborne-engineering/why-not-to-store-objects-in-redux-7f41243020fc) 
+Classes as state really don't play too well with redux. SEE: [Why Not to Store Objects In Redux](https://medium.com/collaborne-engineering/why-not-to-store-objects-in-redux-7f41243020fc)
 
 ### In ReactRedux/Vuex
 ```javascript
   // inside a reducer
   switch(action.type) {
     case 'LOAD_USERS': {
-      return new PersonCollection(action.users, User).toArray(); 
+      return new PersonCollection(action.users, User).toArray();
     }
     default: {
       return state
     }
   }
-``` 
+```
