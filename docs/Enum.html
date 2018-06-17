@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>errors.js - Documentation</title>
+    <title>Enum - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,52 +29,254 @@
 
 <div id="main">
     
-    <h1 class="page-title">errors.js</h1>
+    <h1 class="page-title">Enum</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>export class UnsupportedError extends Error {
-  /**
-   *
-   * @desc An Error that is thrown when values that are not supported in an Enum are used
-   * @param value
-   */
-  constructor(value) {
-    super(`Unsupported value for enum value:  ${value}`);
+        <h2>
+        Enum
+        </h2>
+        
+    
+</header>
 
-    // maintain stack trace from where the error was thrown; v8 only
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, UnsupportedError);
-    }
-  }
-}
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-export class MissingIndexError extends Error {
-  /**
-   *
-   * @desc An Error that is thrown when a Model to be added to a Collection is missing the index field
-   * @param {Model} model
-   * @param {String} indexBy
-   */
-  constructor(model, indexBy) {
-    super(`Model ${model.toJSON()} is missing index ${indexBy}`);
+    
+
+    <h4 class="name" id="Enum"><span class="type-signature"></span>new Enum<span class="signature">(values)</span><span class="type-signature"></span></h4>
+
+    
+    <p class="summary"><p>An Enum helper class that allows the user of many various setting methods</p></p>
+    
 
 
-    // maintain stack trace from where the error was thrown; v8 only
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, MissingIndexError);
-    }
-  }
-}
-</code></pre>
-        </article>
-    </section>
+
+<div class="description">
+    <p>An Enum constructor can take many different types to construct an Enum from:</p>
+<ul>
+<li>String</li>
+<li>Comma-Delimited String</li>
+<li>Object</li>
+<li>Array</li>
+<li>Array of Objects</li>
+<li>Array of Strings</li>
+<li>Array of Arrays of Object</li>
+<li>etc.</li>
+</ul>
+<p>Once created an Enum is immutable.</p>
+<p>Enums inherit from the Serializable class so it also has:</p>
+<ul>
+<li><code>toObject()</code></li>
+<li><code>toJSON()</code></li>
+</ul>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Enum.js.html">Enum.js</a>, <a href="Enum.js.html#line54">line 54</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>values</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Object</code></span>
+|
+
+<span class="param-type"><code>Array.&lt;(Object|String)></code></span>
+|
+
+<span class="param-type"><code>String</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-throws">
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type"><code>UnsupportedError</code></span>
+
+
+    
+    </div>
+
+
+    
+</div>
+
+
+
+
+
+<div class="section-examples">
+<h5>Example</h5>
+
+    <pre class="prettyprint"><code>const states = new Enum([
+  'OPEN',
+  'IN_PROGRESS',
+  'CLOSED'
+]);
+
+console.info(states.OPEN) // 'OPEN'
+
+states.DONE = 'DONE'
+console.info(states.DONE) // undefined
+
+const other_states = new Enum({
+  'START': 'START',
+  'IN_PROGRESS': 'IN_PROGRESS',
+  'DONE': 'DONE'
+})
+
+console.info(other_states.START) // 'START'
+
+other_states.DONE = 'DONE';
+console.info(other_states.DONE) // undefined</code></pre>
+
+</div>
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

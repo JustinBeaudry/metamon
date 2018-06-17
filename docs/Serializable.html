@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>errors.js - Documentation</title>
+    <title>Serializable - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,52 +29,359 @@
 
 <div id="main">
     
-    <h1 class="page-title">errors.js</h1>
+    <h1 class="page-title">Serializable</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>export class UnsupportedError extends Error {
-  /**
-   *
-   * @desc An Error that is thrown when values that are not supported in an Enum are used
-   * @param value
-   */
-  constructor(value) {
-    super(`Unsupported value for enum value:  ${value}`);
+        <h2>
+        Serializable
+        </h2>
+        
+    
+</header>
 
-    // maintain stack trace from where the error was thrown; v8 only
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, UnsupportedError);
-    }
-  }
-}
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-export class MissingIndexError extends Error {
-  /**
-   *
-   * @desc An Error that is thrown when a Model to be added to a Collection is missing the index field
-   * @param {Model} model
-   * @param {String} indexBy
-   */
-  constructor(model, indexBy) {
-    super(`Model ${model.toJSON()} is missing index ${indexBy}`);
+    
+
+    <h4 class="name" id="Serializable"><span class="type-signature"></span>new Serializable<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
 
 
-    // maintain stack trace from where the error was thrown; v8 only
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, MissingIndexError);
-    }
-  }
-}
-</code></pre>
-        </article>
-    </section>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Serializable.js.html">Serializable.js</a>, <a href="Serializable.js.html#line3">line 3</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>converts index to an array and stringifies</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Serializable.js.html">Serializable.js</a>, <a href="Serializable.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-throws">
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type"><code>TypeError</code></span>
+
+
+    
+    </div>
+
+
+    
+</div>
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>String</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="toObject"><span class="type-signature"></span>toObject<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>converts a class to an object</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Serializable.js.html">Serializable.js</a>, <a href="Serializable.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>Object</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
