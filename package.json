@@ -17,7 +17,7 @@
     "build-browser": "rm -rf dist && npx rollup -c",
     "generate-docs": "rm -rf docs && npx jsdoc -c ./.jsdoc.json",
     "serve-docs": "cd docs && python -m SimpleHTTPServer",
-    "prepublish": "npm i;npm run build-prod;npm run generate-docs;npm test"
+    "prepublishOnly": "npm i;npm run build-prod;npm run generate-docs;npm test"
   },
   "keywords": [
     "joi",
