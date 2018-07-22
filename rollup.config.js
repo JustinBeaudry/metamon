@@ -37,10 +37,13 @@ export default [
           "external-helpers"
         ]
       }),
+      builtins(),
       json(),
       eslint({
         fix: true
-      })
+      }),
+      cleanup(),
+      uglify()
     ]
   },
   {
@@ -72,6 +75,7 @@ export default [
           "external-helpers"
         ]
       }),
+      builtins(),
       json(),
       eslint({
         fix: true
