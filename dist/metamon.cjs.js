@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function unwrapExports (x) {
@@ -18617,11 +18619,7 @@ function setFromString(value) {
   Object.assign(this, defineProperty({}, value, value));
 }
 
-var index_es6 = {
-  Model: Model,
-  Collection: Collection,
-  Enum: Enum,
-  Serializable: Serializable
-};
-
-module.exports = index_es6;
+exports.Model = Model;
+exports.Collection = Collection;
+exports.Enum = Enum;
+exports.Serializable = Serializable;

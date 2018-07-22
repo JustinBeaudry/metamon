@@ -3,7 +3,7 @@ import Collection from './src/Collection';
 import Enum from './src/Enum';
 import Serializable from './src/Serializable';
 
-export default {
+export {
   Model,
   Collection,
   Enum,
