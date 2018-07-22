@@ -56,6 +56,9 @@ Classes as state really don't play too well with redux. SEE: [Why Not to Store O
 
 ### In ReactRedux/Vuex
 ```javascript
+  // you have to reference the index.es6.js file unless an appropriate loader is defined to index.mjs
+  import {Model} from 'metamon/index.es6.js';
+  class PersonCollection extends Model {}
   // inside a reducer
   switch(action.type) {
     case 'LOAD_USERS': {
