@@ -6,8 +6,8 @@ const Enum = require('./lib/Enum');
 const Serializable = require('./lib/Serializable');
 
 module.exports = {
-  Model,
-  Collection,
-  Enum,
-  Serializable
+  Model: Model.default,
+  Collection: Collection.default,
+  Enum: Enum.default,
+  Serializable: Serializable.default
 }
