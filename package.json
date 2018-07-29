@@ -5,19 +5,19 @@
   "main": "index.js",
   "browser": "dist/metamon.min.js",
   "scripts": {
-    "test": "BABEL_ENV=test npx nyc npm run test-unit",
+    "test": "npx cross-env BABEL_ENV=test npx nyc npm run test-unit",
     "test-watch": "npm run test -- --watch",
     "test-unit": "npx ava",
     "coverage": "nyc report --reporter=text-lcov | npx coveralls",
     "clean": "rm -rf dist && rm -rf lib",
     "watch-node": "npx babel --watch src --out-dir lib",
     "build": "npm run build-node && npm run build-browser",
-    "build-prod": "NODE_ENV=prod npm run build-browser && npm run build-node",
+    "build-prod": "npx cross-env NODE_ENV=prod npm run build-browser && npm run build-node",
     "build-node": "rm -rf lib && npx babel src --out-dir lib",
     "build-browser": "rm -rf dist && npx rollup -c",
     "generate-docs": "rm -rf docs && npx jsdoc -c ./.jsdoc.json",
     "serve-docs": "cd docs && python -m SimpleHTTPServer",
-    "prepublishOnly": "npm run build-prod;npm run generate-docs;npm test"
+    "prepublishOnly": "npm run build-prod; npm run generate-docs;npm test"
   },
   "keywords": [
     "joi",
@@ -39,7 +39,7 @@
   },
   "homepage": "https://justinbeaudry.github.io/metamon/",
   "dependencies": {
-    "enjoi-browser": "^1.1.0",
+    "enjoi-browser": "1.x.x",
     "joi-browser": "13.x.x",
     "lodash": "4.x.x",
     "uuid": "3.x.x"
@@ -59,6 +59,7 @@
     "babel-preset-env": "1.x.x",
     "babel-register": "6.x.x",
     "coveralls": "3.x.x",
+    "cross-env": "5.x.x",
     "faker": "4.x.x",
     "minami": "1.x.x",
     "nyc": "11.x.x",
@@ -86,17 +87,6 @@
     "powerAssert": true,
     "require": [
       "babel-register"
-    ]
-  },
-  "nyc": {
-    "require": [
-      "babel-register"
-    ],
-    "sourceMap": false,
-    "instrument": false,
-    "include": [
-      "src/*.js",
-      "!src/errors.js"
     ]
   }
 }
