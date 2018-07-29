@@ -44,25 +44,6 @@ You can install metamon via bower with:
 bower install metamon
 ```
 
-## Usage
-
-Read the [DOCS](https://justinbeaudry.github.io/metamon/)
-
-##### Minified
-```javascript
-const {Model, Collection, Enum} = require('metamon/dist/metamon.min.js');
-```
-
-##### Un-minified
-```javascript
-const {Model, Collection, Enum} = require('metamon/dist/metamon.js');
-```
-
-##### CommonJS
-```javascript
-const {Model, Collection, Enum} = require('metamon/dist/metamon.cjs.js');
-```
-
 ### Using in Redux
 
 Using ES6 Classes as state really don't play well with Redux. SEE: [Why Not to Store Objects In Redux](https://medium.com/collaborne-engineering/why-not-to-store-objects-in-redux-7f41243020fc)
