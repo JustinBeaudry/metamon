@@ -64,7 +64,7 @@ test('set() should not be called when constructing without data', t => {
   let {c, err} = collection(null, TestModel);
   t.falsy(err);
   t.true(c instanceof Collection);
-  t.true(t.toArray().length === 0);
+  t.true(c.toArray().length === 0);
 });
 
 test('set() should set with an Object', t => {
