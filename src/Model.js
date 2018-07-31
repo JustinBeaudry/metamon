@@ -7,8 +7,8 @@ import Enjoi from 'enjoi-browser/lib/enjoi';
 const _defaults = Symbol('defaults');
 const _schema = Symbol('schema');
 const _views = Symbol('views');
-
 /**
+ *
  * @extends Serializable
  */
 class Model extends Serializable {
@@ -203,5 +203,4 @@ class Model extends Serializable {
     }
   }
 }
-
 export default Model;

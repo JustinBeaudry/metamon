@@ -1,5 +1,4 @@
 import _ from 'lodash';
-
 /**
  *
  * returns the current time as a unix timestamp
@@ -9,7 +8,6 @@ import _ from 'lodash';
 export function unix() {
   return Math.floor(Date.now() / 1000);
 }
-
 /**
  *
  * JSON stringifies data
@@ -20,7 +18,6 @@ export function unix() {
 export function toJSON(data) {
   return JSON.stringify(data, null, 2);
 }
-
 /**
  *
  * Returns the type of any value. Creates promise and array types for simplicity

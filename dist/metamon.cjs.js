@@ -18405,9 +18405,7 @@ var MissingIndexError = function (_Error2) {
 
 var Collection = function (_Serializable) {
   inherits(Collection, _Serializable);
-  function Collection() {
-    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    var model = arguments[1];
+  function Collection(data, model) {
     var indexBy = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'id';
     classCallCheck(this, Collection);
     var _this = possibleConstructorReturn(this, (Collection.__proto__ || Object.getPrototypeOf(Collection)).call(this));
@@ -18417,7 +18415,9 @@ var Collection = function (_Serializable) {
     _this.index = {};
     _this.indexBy = indexBy;
     _this.Model = model;
-    _this.set(data);
+    if (data) {
+      _this.set(data);
+    }
     return _this;
   }
   createClass(Collection, [{

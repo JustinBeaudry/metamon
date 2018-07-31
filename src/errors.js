@@ -1,3 +1,7 @@
+/**
+ *
+ * @extends Error
+ */
 export class UnsupportedError extends Error {
   /**
    *
@@ -13,7 +17,10 @@ export class UnsupportedError extends Error {
     }
   }
 }
-
+/**
+ *
+ * @extends Error
+ */
 export class MissingIndexError extends Error {
   /**
    *

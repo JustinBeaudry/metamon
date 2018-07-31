@@ -3,7 +3,6 @@ import Serializable from './Serializable';
 import Model from './Model';
 import {MissingIndexError} from './errors';
 import {toJSON, getType} from './utils';
-
 /**
  *
  * @extends Serializable
@@ -18,7 +17,6 @@ class Collection extends Serializable {
    * A Collection is an index of Models. It is a helper object designed around maintaining this index with consistency.
    *
    * @example
-   *
    * class PokemonCollection extends Collection {
    *   constructor(data) {
    *     super(data, Person, 'name');
@@ -34,12 +32,12 @@ class Collection extends Serializable {
    *
    * assert(pokemonCollection.get(name).quote, quote) // true
    *
-   * @param {Object|Array} data [Object] - data to create a collection with on construction. data can be passed after instantiation
+   * @param {Object|Array} data - data to create a collection with on construction. data can be passed after instantiation
    * @param {Model} model - the Model to be used when adding data to a collection. A Collection will force all data into this Model.
    * @param {String} (indexBy) [id] - the field that the collection should index on
    * @throws {Error}
    */
-  constructor(data={}, model, indexBy='id') {
+  constructor(data, model, indexBy='id') {
     super();
     if (!model || !(model.prototype instanceof Model)) {
       throw new Error('A Collection requires a Model, and the Model must inherit from the Model Base Class.');
@@ -47,7 +45,9 @@ class Collection extends Serializable {
     this.index = {};
     this.indexBy = indexBy;
     this.Model = model;
-    this.set(data);
+    if (data) {
+      this.set(data);
+    }
   }
   /**
    *
@@ -229,7 +229,10 @@ class Collection extends Serializable {
     return toJSON(this.toArray());
   }
 }
-
+/**
+ *
+ * @param {Object} datum
+ */
 function setFromObject(datum) {
   const model = convertToModel.call(this, datum);
   const key = model[this.indexBy];
@@ -238,12 +241,15 @@ function setFromObject(datum) {
   }
   this.index[key] = model;
 }
-
+/**
+ *
+ * @param {Object|Model} model
+ * @returns {Model}
+ */
 function convertToModel(model) {
   if (!(model instanceof this.Model)) {
     model = new this.Model(model);
   }
   return model;
 }
-
 export default Collection;

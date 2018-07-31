@@ -1,7 +1,10 @@
 import {UnsupportedError} from './errors';
 import Serializable from './Serializable';
 import {getType} from './utils';
-
+/**
+ *
+ * @extends Serializable
+ */
 class Enum extends Serializable {
   /**
    *  An Enum constructor can take many different types to construct an Enum from:
@@ -57,7 +60,11 @@ class Enum extends Serializable {
     Object.freeze(this);
   }
 }
-
+/**
+ *
+ * @private
+ * @param values
+ */
 function set(values) {
   switch (getType(values)) {
     case 'function':
@@ -81,13 +88,21 @@ function set(values) {
       throw new UnsupportedError(typeof values);
   }
 }
-
+/**
+ *
+ * @private
+ * @param {Array} values
+ */
 function setFromArray(values) {
   for (let value of values) {
     set.call(this, value);
   }
 }
-
+/**
+ *
+ * @private
+ * @param {Object} values
+ */
 function setFromObject(values) {
   for (let key of Object.keys(values)) {
     Object.assign(this, {
@@ -95,12 +110,15 @@ function setFromObject(values) {
     });
   }
 }
-
+/**
+ *
+ * @private
+ * @param {String} value
+ */
 function setFromString(value) {
   value = value.trim();
   Object.assign(this, {
     [value]: value
   });
 }
-
 export default Enum;

@@ -1,8 +1,13 @@
-'use strict'
-
 import Collection from '../src/Collection';
 import Model from '../src/Model';
-
+/**
+ *
+ * @param {Object} data
+ * @param {Object} (defaults)
+ * @param {Object} (schema)
+ * @param {Object} (views)
+ * @returns {{m: Model, err: Error}}
+ */
 export const model = (data, defaults, schema, views) => {
   let m;
   let err;
@@ -24,7 +29,13 @@ export const model = (data, defaults, schema, views) => {
     err,
   }
 };
-
+/**
+ *
+ * @param {Object} data
+ * @param {Model} model
+ * @param {String} (indexBy)
+ * @returns {{c: Collection, err: Error}}
+ */
 export const collection = (data, model, indexBy) => {
   let c;
   let err;
