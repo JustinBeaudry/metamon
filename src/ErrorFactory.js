@@ -8,7 +8,7 @@
  * @returns {Error}
  *
  */
-export default function ErrorFactory(message, ErrorClass=Error) {
+function ErrorFactory(message, ErrorClass=Error) {
   if (typeof message === 'function') {
     ErrorClass = message;
   }
@@ -24,3 +24,5 @@ export default function ErrorFactory(message, ErrorClass=Error) {
     }
   }
 }
+
+export default ErrorFactory;

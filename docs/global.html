@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Enum - Documentation</title>
+    <title>Global - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Enum</h1>
+    <h1 class="page-title">Global</h1>
     
 
     
@@ -42,7 +42,7 @@
 <header>
     
         <h2>
-        Enum
+        
         </h2>
         
     
@@ -52,34 +52,80 @@
     <div class="container-overview">
     
         
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
 <div class="section-method">
 
     
 
-    <h4 class="name" id="Enum"><span class="type-signature"></span>new Enum<span class="signature">(values)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="ErrorFactory"><span class="type-signature"></span>ErrorFactory<span class="signature">((message), (ErrorClass))</span><span class="type-signature"> &rarr; {Error}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>An Enum constructor can take many different types to construct an Enum from:</p>
-<ul>
-<li>String</li>
-<li>Comma-Delimited String</li>
-<li>Object</li>
-<li>Array</li>
-<li>Array of Objects</li>
-<li>Array of Strings</li>
-<li>Array of Arrays of Object</li>
-<li>etc.</li>
-</ul>
-<p>Once created an Enum is immutable.</p>
-<p>Enums inherit from the Serializable class so it also has:</p>
-<ul>
-<li><code>toObject()</code></li>
-<li><code>toJSON()</code></li>
-</ul>
+    <p>construct a custom error constructor and streamline
+  the stack trace captured in the custom error</p>
 </div>
 
 
@@ -115,7 +161,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Enum.js.html">Enum.js</a>, <a href="Enum.js.html#line8">line 8</a>
+        <a href="ErrorFactory.js.html">ErrorFactory.js</a>, <a href="ErrorFactory.js.html#line11">line 11</a>
     </li></ul></dd>
     
 
@@ -159,19 +205,42 @@
 
         <tr>
             
-                <td class="name"><code>values</code></td>
+                <td class="name"><code>(message)</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>Object</code></span>
-|
-
-<span class="param-type"><code>Array.&lt;(Object|String)></code></span>
-|
-
 <span class="param-type"><code>String</code></span>
+|
+
+<span class="param-type"><code>ErrorConstructor</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>(ErrorClass)</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>ErrorConstructor</code></span>
 
 
             
@@ -204,141 +273,6 @@
 
 
 
-
-
-</div>
-    
-    </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="Serializable.html">Serializable</a></li>
-    </ul>
-
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="toJSON"><span class="type-signature"></span>toJSON<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>converts index to an array and stringifies</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Serializable.html#toJSON">Serializable#toJSON</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Serializable.js.html">Serializable.js</a>, <a href="Serializable.js.html#line22">line 22</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-throws">
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type"><code>TypeError</code></span>
-
-
-    
-    </div>
-
-
-    
-</div>
-
-
-
 <div class="section-returns">
 <h5>Returns:</h5>
 
@@ -350,116 +284,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><code>String</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="toObject"><span class="type-signature"></span>toObject<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>converts a class to an object</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="Serializable.html#toObject">Serializable#toObject</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Serializable.js.html">Serializable.js</a>, <a href="Serializable.js.html#line12">line 12</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>Object</code></span>
+<span class="param-type"><code>Error</code></span>
 
 
     </dd>
