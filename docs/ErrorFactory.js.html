@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>UnsupportedError - Documentation</title>
+    <title>ErrorFactory.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,129 +29,44 @@
 
 <div id="main">
     
-    <h1 class="page-title">UnsupportedError</h1>
+    <h1 class="page-title">ErrorFactory.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        UnsupportedError
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="UnsupportedError"><span class="type-signature"></span>new UnsupportedError<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="errors.js.html">errors.js</a>, <a href="errors.js.html#line36">line 36</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ *
+ * construct a custom error constructor and streamline
+ *   the stack trace captured in the custom error
+ *
+ * @param {String|ErrorConstructor} (message)
+ * @param {ErrorConstructor} (ErrorClass)
+ * @returns {Error}
+ *
+ */
+export default function ErrorFactory(message, ErrorClass=Error) {
+  if (typeof message === 'function') {
+    ErrorClass = message;
+  }
+  return class CustomError extends ErrorClass {
+    constructor(...args) {
+      if (typeof message === 'string') {
+        args.unshift(message);
+      }
+      super(...args);
+      if (typeof ErrorClass.captureStackTrace === 'function') {
+        ErrorClass.captureStackTrace(this, CustomError);
+      }
+    }
+  }
+}</code></pre>
+        </article>
+    </section>
 
 
 

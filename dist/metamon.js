@@ -18394,30 +18394,50 @@ var Metamon = (function (exports) {
 	  return Model;
 	}(Serializable);
 
-	var UnsupportedError = function (_Error) {
-	  inherits(UnsupportedError, _Error);
-	  function UnsupportedError(value) {
-	    classCallCheck(this, UnsupportedError);
-	    var _this = possibleConstructorReturn(this, (UnsupportedError.__proto__ || Object.getPrototypeOf(UnsupportedError)).call(this, "Unsupported value for enum value:  " + value));
-	    if (Error.captureStackTrace) {
-	      Error.captureStackTrace(_this, UnsupportedError);
-	    }
-	    return _this;
+	function ErrorFactory(message) {
+	  var ErrorClass = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Error;
+	  if (typeof message === 'function') {
+	    ErrorClass = message;
 	  }
-	  return UnsupportedError;
-	}(Error);
-	var MissingIndexError = function (_Error2) {
-	  inherits(MissingIndexError, _Error2);
-	  function MissingIndexError(model, indexBy) {
-	    classCallCheck(this, MissingIndexError);
-	    var _this2 = possibleConstructorReturn(this, (MissingIndexError.__proto__ || Object.getPrototypeOf(MissingIndexError)).call(this, "Model " + model.toJSON() + " is missing index " + indexBy));
-	    if (Error.captureStackTrace) {
-	      Error.captureStackTrace(_this2, MissingIndexError);
+	  return function (_ErrorClass) {
+	    inherits(CustomError, _ErrorClass);
+	    function CustomError() {
+	      var _ref;
+	      classCallCheck(this, CustomError);
+	      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
+	      }
+	      if (typeof message === 'string') {
+	        args.unshift(message);
+	      }
+	      var _this = possibleConstructorReturn(this, (_ref = CustomError.__proto__ || Object.getPrototypeOf(CustomError)).call.apply(_ref, [this].concat(args)));
+	      if (typeof ErrorClass.captureStackTrace === 'function') {
+	        ErrorClass.captureStackTrace(_this, CustomError);
+	      }
+	      return _this;
 	    }
-	    return _this2;
+	    return CustomError;
+	  }(ErrorClass);
+	}
+
+	var UnsupportedErrorConstructor = function (_Error) {
+	  inherits(UnsupportedErrorConstructor, _Error);
+	  function UnsupportedErrorConstructor(value) {
+	    classCallCheck(this, UnsupportedErrorConstructor);
+	    return possibleConstructorReturn(this, (UnsupportedErrorConstructor.__proto__ || Object.getPrototypeOf(UnsupportedErrorConstructor)).call(this, 'Unsupported value for enum value:  ' + value));
 	  }
-	  return MissingIndexError;
+	  return UnsupportedErrorConstructor;
 	}(Error);
+	var MissingIndexErrorConstructor = function (_Error2) {
+	  inherits(MissingIndexErrorConstructor, _Error2);
+	  function MissingIndexErrorConstructor(model, indexBy) {
+	    classCallCheck(this, MissingIndexErrorConstructor);
+	    return possibleConstructorReturn(this, (MissingIndexErrorConstructor.__proto__ || Object.getPrototypeOf(MissingIndexErrorConstructor)).call(this, 'Model ' + model.toJSON() + ' is missing index ' + indexBy));
+	  }
+	  return MissingIndexErrorConstructor;
+	}(Error);
+	var UnsupportedError = ErrorFactory(null, UnsupportedErrorConstructor);
+	var MissingIndexError = ErrorFactory(null, MissingIndexErrorConstructor);
 
 	var Collection = function (_Serializable) {
 	  inherits(Collection, _Serializable);
@@ -18633,24 +18653,6 @@ var Metamon = (function (exports) {
 	function setFromString(value) {
 	  value = value.trim();
 	  Object.assign(this, defineProperty({}, value, value));
-	}
-
-	function ErrorFactory() {
-	  var ErrorClass = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Error;
-	  return function (_ErrorClass) {
-	    inherits(CustomError, _ErrorClass);
-	    function CustomError() {
-	      var _ref;
-	      classCallCheck(this, CustomError);
-	      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
-	      }
-	      var _this = possibleConstructorReturn(this, (_ref = CustomError.__proto__ || Object.getPrototypeOf(CustomError)).call.apply(_ref, [this].concat(args)));
-	      Error.captureStackTrace(_this, CustomError);
-	      return _this;
-	    }
-	    return CustomError;
-	  }(ErrorClass);
 	}
 
 	exports.Model = Model;

@@ -231,6 +231,7 @@ class Collection extends Serializable {
 }
 /**
  *
+ * @ignore
  * @param {Object} datum
  */
 function setFromObject(datum) {
@@ -243,6 +244,7 @@ function setFromObject(datum) {
 }
 /**
  *
+ * @ignore
  * @param {Object|Model} model
  * @returns {Model}
  */
