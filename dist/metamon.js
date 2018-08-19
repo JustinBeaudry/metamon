@@ -5929,13 +5929,7 @@ var Metamon = (function (exports) {
 	    return lodash;
 	  });
 	  var _ = runInContext();
-	  if (typeof undefined == 'function' && typeof undefined.amd == 'object' && undefined.amd) {
-	    root._ = _;
-	    undefined(function() {
-	      return _;
-	    });
-	  }
-	  else if (freeModule) {
+	  if (freeModule) {
 	    (freeModule.exports = _)._ = _;
 	    freeExports._ = _;
 	  }
@@ -6053,8 +6047,8 @@ var Metamon = (function (exports) {
 	}();
 
 	var rngBrowser = createCommonjsModule(function (module) {
-	var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues.bind(crypto)) ||
-	                      (typeof(msCrypto) != 'undefined' && msCrypto.getRandomValues.bind(msCrypto));
+	var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+	                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
 	if (getRandomValues) {
 	  var rnds8 = new Uint8Array(16);
 	  module.exports = function whatwgRNG() {
@@ -6085,14 +6079,14 @@ var Metamon = (function (exports) {
 	function bytesToUuid(buf, offset) {
 	  var i = offset || 0;
 	  var bth = byteToHex;
-	  return bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] + '-' +
-	          bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]] +
-	          bth[buf[i++]] + bth[buf[i++]];
+	  return ([bth[buf[i++]], bth[buf[i++]],
+		bth[buf[i++]], bth[buf[i++]], '-',
+		bth[buf[i++]], bth[buf[i++]], '-',
+		bth[buf[i++]], bth[buf[i++]], '-',
+		bth[buf[i++]], bth[buf[i++]], '-',
+		bth[buf[i++]], bth[buf[i++]],
+		bth[buf[i++]], bth[buf[i++]],
+		bth[buf[i++]], bth[buf[i++]]]).join('');
 	}
 	var bytesToUuid_1 = bytesToUuid;
 
@@ -6240,16 +6234,17 @@ var Metamon = (function (exports) {
 	         	};
 	         	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 	         	__webpack_require__.p = "";
-	         	return __webpack_require__(__webpack_require__.s = 29);
+	         	return __webpack_require__(__webpack_require__.s = 32);
 	         })
 	         ([
 	      (function(module, exports, __webpack_require__) {
 	                           (function(Buffer, process) {
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	var Crypto = __webpack_require__(14);
-	var Path = __webpack_require__(34);
-	var Util = __webpack_require__(38);
-	var Escape = __webpack_require__(15);
+	var Assert = __webpack_require__(17);
+	var Crypto = __webpack_require__(15);
+	var Path = __webpack_require__(37);
+	var Util = __webpack_require__(16);
+	var Escape = __webpack_require__(18);
 	var internals = {};
 	exports.clone = function (obj, seen) {
 	    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object' || obj === null) {
@@ -6264,7 +6259,7 @@ var Metamon = (function (exports) {
 	    var cloneDeep = false;
 	    if (!Array.isArray(obj)) {
 	        if (Buffer.isBuffer(obj)) {
-	            newObj = new Buffer(obj);
+	            newObj = Buffer.from(obj);
 	        } else if (obj instanceof Date) {
 	            newObj = new Date(obj.getTime());
 	        } else if (obj instanceof RegExp) {
@@ -6316,6 +6311,9 @@ var Metamon = (function (exports) {
 	    var keys = Object.keys(source);
 	    for (var _i = 0; _i < keys.length; ++_i) {
 	        var key = keys[_i];
+	        if (key === '__proto__') {
+	            continue;
+	        }
 	        var value = source[key];
 	        if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
 	            if (!target[key] || _typeof(target[key]) !== 'object' || Array.isArray(target[key]) !== Array.isArray(value) || value instanceof Date || Buffer.isBuffer(value) || value instanceof RegExp) {
@@ -6721,7 +6719,13 @@ var Metamon = (function (exports) {
 	    }).map(function (arg) {
 	        return typeof arg === 'string' ? arg : arg instanceof Error ? arg.message : exports.stringify(arg);
 	    });
-	    throw new Error(msgs.join(' ') || 'Unknown error');
+	    throw new Assert.AssertionError({
+	        message: msgs.join(' ') || 'Unknown error',
+	        actual: false,
+	        expected: true,
+	        operator: '==',
+	        stackStartFunction: exports.assert
+	    });
 	};
 	exports.Bench = function () {
 	    this.ts = 0;
@@ -6742,7 +6746,7 @@ var Metamon = (function (exports) {
 	};
 	exports.base64urlEncode = function (value, encoding) {
 	    exports.assert(typeof value === 'string' || Buffer.isBuffer(value), 'value must be string or buffer');
-	    var buf = Buffer.isBuffer(value) ? value : new Buffer(value, encoding || 'binary');
+	    var buf = Buffer.isBuffer(value) ? value : Buffer.from(value, encoding || 'binary');
 	    return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
 	};
 	exports.base64urlDecode = function (value, encoding) {
@@ -6752,7 +6756,7 @@ var Metamon = (function (exports) {
 	    if (!/^[\w\-]*$/.test(value)) {
 	        throw new Error('Invalid character');
 	    }
-	    var buf = new Buffer(value, 'base64');
+	    var buf = Buffer.from(value, 'base64');
 	    return encoding === 'buffer' ? buf : buf.toString(encoding || 'binary');
 	};
 	exports.escapeHeaderAttribute = function (attribute) {
@@ -6857,7 +6861,7 @@ var Metamon = (function (exports) {
 	exports.block = function () {
 	    return new Promise(exports.ignore);
 	};
-	                           }.call(exports, __webpack_require__(3).Buffer, __webpack_require__(5)));
+	                           }.call(exports, __webpack_require__(3).Buffer, __webpack_require__(7)));
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	var Hoek = __webpack_require__(0);
@@ -6888,11 +6892,11 @@ var Metamon = (function (exports) {
 	};
 	      }),
 	      (function(module, exports, __webpack_require__) {
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	var Hoek = __webpack_require__(0);
+	var Settings = __webpack_require__(11);
 	var Ref = __webpack_require__(1);
 	var Errors = __webpack_require__(6);
 	var Alternatives = null;
@@ -6933,6 +6937,9 @@ var Metamon = (function (exports) {
 	        this._meta = [];
 	        this._inner = {};
 	    }
+	    _class.prototype._init = function _init() {
+	        return this;
+	    };
 	    _class.prototype.createError = function createError(type, context, state, options) {
 	        var flags = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : this._flags;
 	        return Errors.create(type, context, state, options, flags);
@@ -6941,7 +6948,7 @@ var Metamon = (function (exports) {
 	        return Errors.create(type, context, state, options, this._flags, message, template);
 	    };
 	    _class.prototype.checkOptions = function checkOptions(options) {
-	        var Schemas = __webpack_require__(18);
+	        var Schemas = __webpack_require__(21);
 	        var result = Schemas.options.validate(options);
 	        if (result.error) {
 	            throw new Error(result.error.details[0].message);
@@ -6952,10 +6959,10 @@ var Metamon = (function (exports) {
 	        obj.isJoi = true;
 	        obj._currentJoi = this._currentJoi;
 	        obj._type = this._type;
-	        obj._settings = internals.concatSettings(this._settings);
+	        obj._settings = this._settings;
 	        obj._baseType = this._baseType;
-	        obj._valids = Hoek.clone(this._valids);
-	        obj._invalids = Hoek.clone(this._invalids);
+	        obj._valids = this._valids.slice();
+	        obj._invalids = this._invalids.slice();
 	        obj._tests = this._tests.slice();
 	        obj._refs = this._refs.slice();
 	        obj._flags = Hoek.clone(this._flags);
@@ -6985,7 +6992,7 @@ var Metamon = (function (exports) {
 	            }
 	            obj = tmpObj;
 	        }
-	        obj._settings = obj._settings ? internals.concatSettings(obj._settings, schema._settings) : schema._settings;
+	        obj._settings = obj._settings ? Settings.concat(obj._settings, schema._settings) : schema._settings;
 	        obj._valids.merge(schema._valids, schema._invalids);
 	        obj._invalids.merge(schema._invalids, schema._valids);
 	        obj._tests = obj._tests.concat(schema._tests);
@@ -7040,13 +7047,13 @@ var Metamon = (function (exports) {
 	        Hoek.assert(!_options.context, 'Cannot override context');
 	        this.checkOptions(_options);
 	        var obj = this.clone();
-	        obj._settings = internals.concatSettings(obj._settings, _options);
+	        obj._settings = Settings.concat(obj._settings, _options);
 	        return obj;
 	    };
 	    _class.prototype.strict = function strict(isStrict) {
 	        var obj = this.clone();
-	        obj._settings = obj._settings || {};
-	        obj._settings.convert = isStrict === undefined ? false : !isStrict;
+	        var convert = isStrict === undefined ? false : !isStrict;
+	        obj._settings = Settings.concat(obj._settings, { convert: convert });
 	        return obj;
 	    };
 	    _class.prototype.raw = function raw(isRaw) {
@@ -7205,8 +7212,6 @@ var Metamon = (function (exports) {
 	    _class.prototype.example = function example() {
 	        Hoek.assert(arguments.length === 1, 'Missing example');
 	        var value = arguments.length <= 0 ? undefined : arguments[0];
-	        var result = this._validate(value, null, internals.defaults);
-	        Hoek.assert(!result.errors, 'Bad example:', result.errors && Errors.process(result.errors, value));
 	        var obj = this.clone();
 	        obj._examples.push(value);
 	        return obj;
@@ -7228,7 +7233,7 @@ var Metamon = (function (exports) {
 	        var originalValue = value;
 	        state = state || { key: '', path: [], parent: null, reference: reference };
 	        if (this._settings) {
-	            options = internals.concatSettings(options, this._settings);
+	            options = Settings.concat(options, this._settings);
 	        }
 	        var errors = [];
 	        var finish = function finish() {
@@ -7304,7 +7309,7 @@ var Metamon = (function (exports) {
 	            return finish();
 	        }
 	        if (this._invalids.has(value, state, options, this._flags.insensitive)) {
-	            errors.push(this.createError(value === '' ? 'any.empty' : 'any.invalid', null, state, options));
+	            errors.push(this.createError(value === '' ? 'any.empty' : 'any.invalid', { value: value, invalids: this._invalids.values({ stripUndefined: true }) }, state, options));
 	            if (options.abortEarly || value === undefined) {
 	                return finish();
 	            }
@@ -7322,7 +7327,7 @@ var Metamon = (function (exports) {
 	                    return finish();
 	                }
 	                if (this._invalids.has(value, state, options, this._flags.insensitive)) {
-	                    errors.push(this.createError(value === '' ? 'any.empty' : 'any.invalid', null, state, options));
+	                    errors.push(this.createError(value === '' ? 'any.empty' : 'any.invalid', { value: value, invalids: this._invalids.values({ stripUndefined: true }) }, state, options));
 	                    if (options.abortEarly) {
 	                        return finish();
 	                    }
@@ -7330,7 +7335,7 @@ var Metamon = (function (exports) {
 	            }
 	        }
 	        if (this._flags.allowOnly) {
-	            errors.push(this.createError('any.allowOnly', { valids: this._valids.values({ stripUndefined: true }) }, state, options));
+	            errors.push(this.createError('any.allowOnly', { value: value, valids: this._valids.values({ stripUndefined: true }) }, state, options));
 	            if (options.abortEarly) {
 	                return finish();
 	            }
@@ -7353,7 +7358,7 @@ var Metamon = (function (exports) {
 	        if (options) {
 	            this.checkOptions(options);
 	        }
-	        var settings = internals.concatSettings(internals.defaults, options);
+	        var settings = Settings.concat(internals.defaults, options);
 	        var result = this._validate(value, null, settings);
 	        var errors = Errors.process(result.errors, value);
 	        if (callback) {
@@ -7521,24 +7526,6 @@ var Metamon = (function (exports) {
 	        error: err
 	    };
 	};
-	internals.concatSettings = function (target, source) {
-	    if (!target && !source) {
-	        return null;
-	    }
-	    var obj = _extends({}, target);
-	    if (source) {
-	        var sKeys = Object.keys(source);
-	        for (var i = 0; i < sKeys.length; ++i) {
-	            var key = sKeys[i];
-	            if (key !== 'language' || !obj.hasOwnProperty(key)) {
-	                obj[key] = source[key];
-	            } else {
-	                obj[key] = Hoek.applyToDefaults(obj[key], source[key]);
-	            }
-	        }
-	    }
-	    return obj;
-	};
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	                           (function(global) {/*!
@@ -7547,9 +7534,9 @@ var Metamon = (function (exports) {
 	 * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
 	 * @license  MIT
 	 */
-	var base64 = __webpack_require__(30);
-	var ieee754 = __webpack_require__(31);
-	var isArray = __webpack_require__(32);
+	var base64 = __webpack_require__(33);
+	var ieee754 = __webpack_require__(34);
+	var isArray = __webpack_require__(35);
 	exports.Buffer = Buffer;
 	exports.SlowBuffer = SlowBuffer;
 	exports.INSPECT_MAX_BYTES = 50;
@@ -8933,7 +8920,7 @@ var Metamon = (function (exports) {
 	function isnan (val) {
 	  return val !== val
 	}
-	                           }.call(exports, __webpack_require__(7)));
+	                           }.call(exports, __webpack_require__(5)));
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -8975,161 +8962,23 @@ var Metamon = (function (exports) {
 	};
 	      }),
 	      (function(module, exports) {
-	var process = module.exports = {};
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-	function defaultSetTimout() {
-	    throw new Error('setTimeout has not been defined');
+	var g;
+	g = (function() {
+		return this;
+	})();
+	try {
+		g = g || Function("return this")() || (0, eval)("this");
+	} catch(e) {
+		if(typeof window === "object")
+			g = window;
 	}
-	function defaultClearTimeout () {
-	    throw new Error('clearTimeout has not been defined');
-	}
-	(function () {
-	    try {
-	        if (typeof setTimeout === 'function') {
-	            cachedSetTimeout = setTimeout;
-	        } else {
-	            cachedSetTimeout = defaultSetTimout;
-	        }
-	    } catch (e) {
-	        cachedSetTimeout = defaultSetTimout;
-	    }
-	    try {
-	        if (typeof clearTimeout === 'function') {
-	            cachedClearTimeout = clearTimeout;
-	        } else {
-	            cachedClearTimeout = defaultClearTimeout;
-	        }
-	    } catch (e) {
-	        cachedClearTimeout = defaultClearTimeout;
-	    }
-	} ());
-	function runTimeout(fun) {
-	    if (cachedSetTimeout === setTimeout) {
-	        return setTimeout(fun, 0);
-	    }
-	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-	        cachedSetTimeout = setTimeout;
-	        return setTimeout(fun, 0);
-	    }
-	    try {
-	        return cachedSetTimeout(fun, 0);
-	    } catch(e){
-	        try {
-	            return cachedSetTimeout.call(null, fun, 0);
-	        } catch(e){
-	            return cachedSetTimeout.call(this, fun, 0);
-	        }
-	    }
-	}
-	function runClearTimeout(marker) {
-	    if (cachedClearTimeout === clearTimeout) {
-	        return clearTimeout(marker);
-	    }
-	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-	        cachedClearTimeout = clearTimeout;
-	        return clearTimeout(marker);
-	    }
-	    try {
-	        return cachedClearTimeout(marker);
-	    } catch (e){
-	        try {
-	            return cachedClearTimeout.call(null, marker);
-	        } catch (e){
-	            return cachedClearTimeout.call(this, marker);
-	        }
-	    }
-	}
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-	function cleanUpNextTick() {
-	    if (!draining || !currentQueue) {
-	        return;
-	    }
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = runTimeout(cleanUpNextTick);
-	    draining = true;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            if (currentQueue) {
-	                currentQueue[queueIndex].run();
-	            }
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    runClearTimeout(timeout);
-	}
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        runTimeout(drainQueue);
-	    }
-	};
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = '';
-	process.versions = {};
-	function noop() {}
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-	process.prependListener = noop;
-	process.prependOnceListener = noop;
-	process.listeners = function (name) { return [] };
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
+	module.exports = g;
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	var Hoek = __webpack_require__(0);
-	var Language = __webpack_require__(17);
+	var Language = __webpack_require__(20);
 	var internals = {
 	    annotations: Symbol('joi-annotations')
 	};
@@ -9395,17 +9244,155 @@ var Metamon = (function (exports) {
 	};
 	      }),
 	      (function(module, exports) {
-	var g;
-	g = (function() {
-		return this;
-	})();
-	try {
-		g = g || Function("return this")() || (0, eval)("this");
-	} catch(e) {
-		if(typeof window === "object")
-			g = window;
+	var process = module.exports = {};
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
 	}
-	module.exports = g;
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
+	(function () {
+	    try {
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
+	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
+	    }
+	    try {
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
+	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
+	    }
+	} ());
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        return setTimeout(fun, 0);
+	    }
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        return clearTimeout(marker);
+	    }
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+	}
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = runTimeout(cleanUpNextTick);
+	    draining = true;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    runClearTimeout(timeout);
+	}
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        runTimeout(drainQueue);
+	    }
+	};
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = '';
+	process.versions = {};
+	function noop() {}
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+	process.prependListener = noop;
+	process.prependOnceListener = noop;
+	process.listeners = function (name) { return [] };
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -9414,30 +9401,33 @@ var Metamon = (function (exports) {
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	var Hoek = __webpack_require__(0);
 	var Any = __webpack_require__(2);
 	var Cast = __webpack_require__(4);
 	var Errors = __webpack_require__(6);
-	var Lazy = __webpack_require__(23);
+	var Lazy = __webpack_require__(26);
 	var Ref = __webpack_require__(1);
+	var Settings = __webpack_require__(11);
 	var internals = {
 	    alternatives: __webpack_require__(10),
-	    array: __webpack_require__(19),
-	    boolean: __webpack_require__(21),
-	    binary: __webpack_require__(20),
-	    date: __webpack_require__(11),
-	    func: __webpack_require__(22),
-	    number: __webpack_require__(24),
-	    object: __webpack_require__(12),
-	    string: __webpack_require__(25)
+	    array: __webpack_require__(22),
+	    boolean: __webpack_require__(24),
+	    binary: __webpack_require__(23),
+	    date: __webpack_require__(12),
+	    func: __webpack_require__(25),
+	    number: __webpack_require__(27),
+	    object: __webpack_require__(13),
+	    string: __webpack_require__(28)
 	};
-	internals.applyDefaults = function (schema) {
+	internals.callWithDefaults = function (schema, args) {
+	    var _schema;
 	    Hoek.assert(this, 'Must be invoked on a Joi instance.');
 	    if (this._defaults) {
 	        schema = this._defaults(schema);
 	    }
 	    schema._currentJoi = this;
-	    return schema;
+	    return (_schema = schema)._init.apply(_schema, _toConsumableArray(args));
 	};
 	internals.root = function () {
 	    var any = new Any();
@@ -9445,47 +9435,72 @@ var Metamon = (function (exports) {
 	    Any.prototype._currentJoi = root;
 	    root._currentJoi = root;
 	    root.any = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.any() does not allow arguments.');
-	        return internals.applyDefaults.call(this, any);
-	    };
-	    root.alternatives = root.alt = function () {
-	        var alternatives = internals.applyDefaults.call(this, internals.alternatives);
 	        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 	            args[_key] = arguments[_key];
 	        }
-	        return args.length ? alternatives.try.apply(alternatives, args) : alternatives;
+	        Hoek.assert(args.length === 0, 'Joi.any() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, any, args);
+	    };
+	    root.alternatives = root.alt = function () {
+	        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	            args[_key2] = arguments[_key2];
+	        }
+	        return internals.callWithDefaults.call(this, internals.alternatives, args);
 	    };
 	    root.array = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.array() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.array);
+	        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+	            args[_key3] = arguments[_key3];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.array() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.array, args);
 	    };
 	    root.boolean = root.bool = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.boolean() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.boolean);
+	        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+	            args[_key4] = arguments[_key4];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.boolean() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.boolean, args);
 	    };
 	    root.binary = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.binary() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.binary);
+	        for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+	            args[_key5] = arguments[_key5];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.binary() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.binary, args);
 	    };
 	    root.date = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.date() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.date);
+	        for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+	            args[_key6] = arguments[_key6];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.date() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.date, args);
 	    };
 	    root.func = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.func() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.func);
+	        for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+	            args[_key7] = arguments[_key7];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.func() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.func, args);
 	    };
 	    root.number = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.number() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.number);
+	        for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+	            args[_key8] = arguments[_key8];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.number() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.number, args);
 	    };
 	    root.object = function () {
-	        var object = internals.applyDefaults.call(this, internals.object);
-	        return arguments.length ? object.keys.apply(object, arguments) : object;
+	        for (var _len9 = arguments.length, args = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
+	            args[_key9] = arguments[_key9];
+	        }
+	        return internals.callWithDefaults.call(this, internals.object, args);
 	    };
 	    root.string = function () {
-	        Hoek.assert(arguments.length === 0, 'Joi.string() does not allow arguments.');
-	        return internals.applyDefaults.call(this, internals.string);
+	        for (var _len10 = arguments.length, args = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+	            args[_key10] = arguments[_key10];
+	        }
+	        Hoek.assert(args.length === 0, 'Joi.string() does not allow arguments.');
+	        return internals.callWithDefaults.call(this, internals.string, args);
 	    };
 	    root.ref = function () {
 	        return Ref.create.apply(Ref, arguments);
@@ -9544,22 +9559,25 @@ var Metamon = (function (exports) {
 	    };
 	    root.reach = function (schema, path) {
 	        Hoek.assert(schema && schema instanceof Any, 'you must provide a joi schema');
-	        Hoek.assert(typeof path === 'string', 'path must be a string');
-	        if (path === '') {
-	            return schema;
-	        }
-	        var parts = path.split('.');
-	        var children = schema._inner.children;
-	        if (!children) {
-	            return;
-	        }
-	        var key = parts[0];
-	        for (var i = 0; i < children.length; ++i) {
-	            var child = children[i];
-	            if (child.key === key) {
-	                return this.reach(child.schema, path.substr(key.length + 1));
+	        Hoek.assert(Array.isArray(path) || typeof path === 'string', 'path must be a string or an array of strings');
+	        var reach = function reach(sourceSchema, schemaPath) {
+	            if (!schemaPath.length) {
+	                return sourceSchema;
 	            }
-	        }
+	            var children = sourceSchema._inner.children;
+	            if (!children) {
+	                return;
+	            }
+	            var key = schemaPath.shift();
+	            for (var i = 0; i < children.length; ++i) {
+	                var child = children[i];
+	                if (child.key === key) {
+	                    return reach(child.schema, schemaPath);
+	                }
+	            }
+	        };
+	        var schemaPath = typeof path === 'string' ? path ? path.split('.') : [] : path.slice();
+	        return reach(schema, schemaPath);
 	    };
 	    root.lazy = function (fn) {
 	        return Lazy.set(fn);
@@ -9584,8 +9602,8 @@ var Metamon = (function (exports) {
 	    };
 	    root.extend = function () {
 	        var _this2 = this;
-	        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-	            args[_key2] = arguments[_key2];
+	        for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
+	            args[_key11] = arguments[_key11];
 	        }
 	        var extensions = Hoek.flatten(args);
 	        Hoek.assert(extensions.length > 0, 'You need to provide at least one extension');
@@ -9610,8 +9628,9 @@ var Metamon = (function (exports) {
 	                    }
 	                    _this3._type = extension.name;
 	                    if (extension.language) {
-	                        _this3._settings = _this3._settings || { language: {} };
-	                        _this3._settings.language = Hoek.applyToDefaults(_this3._settings.language, _defineProperty({}, extension.name, extension.language));
+	                        _this3._settings = Settings.concat(_this3._settings, {
+	                            language: _defineProperty({}, extension.name, extension.language)
+	                        });
 	                    }
 	                    return _this3;
 	                }
@@ -9657,8 +9676,8 @@ var Metamon = (function (exports) {
 	                    }) : Object.keys(rule.params) : [];
 	                    var validateArgs = rule.params ? Cast.schema(_this2, rule.params) : null;
 	                    type.prototype[rule.name] = function () {
-	                        for (var _len3 = arguments.length, rArgs = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-	                            rArgs[_key3] = arguments[_key3];
+	                        for (var _len12 = arguments.length, rArgs = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
+	                            rArgs[_key12] = arguments[_key12];
 	                        }
 	                        if (rArgs.length > ruleArgs.length) {
 	                            throw new Error('Unexpected number of arguments');
@@ -9708,7 +9727,10 @@ var Metamon = (function (exports) {
 	            }
 	            var instance = new type();
 	            joi[extension.name] = function () {
-	                return internals.applyDefaults.call(this, instance);
+	                for (var _len13 = arguments.length, extArgs = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
+	                    extArgs[_key13] = arguments[_key13];
+	                }
+	                return internals.callWithDefaults.call(this, instance, extArgs);
 	            };
 	        };
 	        for (var i = 0; i < extensions.length; ++i) {
@@ -9732,7 +9754,7 @@ var Metamon = (function (exports) {
 	        }).or('setup', 'validate'))
 	    }).strict();
 	    root.extensionsSchema = internals.array.items([internals.object, internals.func.arity(1)]).strict();
-	    root.version = __webpack_require__(33).version;
+	    root.version = __webpack_require__(36).version;
 	    return root;
 	};
 	module.exports = internals.root();
@@ -9740,83 +9762,228 @@ var Metamon = (function (exports) {
 	      (function(module, exports, __webpack_require__) {
 	                           (function(Buffer) {
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	var Ref = __webpack_require__(1);
-	module.exports = function () {
-	    function Set() {
-	        _classCallCheck(this, Set);
-	        this._set = [];
+	var internals = {};
+	internals.extendedCheckForValue = function (value, insensitive) {
+	    var valueType = typeof value === 'undefined' ? 'undefined' : _typeof(value);
+	    if (valueType === 'object') {
+	        if (value instanceof Date) {
+	            return function (item) {
+	                return item instanceof Date && value.getTime() === item.getTime();
+	            };
+	        }
+	        if (Buffer.isBuffer(value)) {
+	            return function (item) {
+	                return Buffer.isBuffer(item) && value.length === item.length && value.toString('binary') === item.toString('binary');
+	            };
+	        }
+	    } else if (insensitive && valueType === 'string') {
+	        var lowercaseValue = value.toLowerCase();
+	        return function (item) {
+	            return typeof item === 'string' && lowercaseValue === item.toLowerCase();
+	        };
 	    }
-	    Set.prototype.add = function add(value, refs) {
-	        if (!Ref.isRef(value) && this.has(value, null, null, false)) {
-	            return;
+	    return null;
+	};
+	module.exports = function () {
+	    function InternalSet(from) {
+	        _classCallCheck(this, InternalSet);
+	        this._set = new Set(from);
+	        this._hasRef = false;
+	    }
+	    InternalSet.prototype.add = function add(value, refs) {
+	        var isRef = Ref.isRef(value);
+	        if (!isRef && this.has(value, null, null, false)) {
+	            return this;
 	        }
 	        if (refs !== undefined) {
 	            Ref.push(refs, value);
 	        }
-	        this._set.push(value);
+	        this._set.add(value);
+	        this._hasRef |= isRef;
 	        return this;
 	    };
-	    Set.prototype.merge = function merge(add, remove) {
-	        for (var i = 0; i < add._set.length; ++i) {
-	            this.add(add._set[i]);
-	        }
-	        for (var _i = 0; _i < remove._set.length; ++_i) {
-	            this.remove(remove._set[_i]);
-	        }
-	        return this;
-	    };
-	    Set.prototype.remove = function remove(value) {
-	        this._set = this._set.filter(function (item) {
-	            return value !== item;
-	        });
-	        return this;
-	    };
-	    Set.prototype.has = function has(value, state, options, insensitive) {
-	        for (var i = 0; i < this._set.length; ++i) {
-	            var items = this._set[i];
-	            if (state && Ref.isRef(items)) {
-	                items = items(state.reference || state.parent, options);
+	    InternalSet.prototype.merge = function merge(add, remove) {
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	        try {
+	            for (var _iterator = add._set[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var item = _step.value;
+	                this.add(item);
 	            }
-	            if (!Array.isArray(items)) {
-	                items = [items];
-	            }
-	            for (var j = 0; j < items.length; ++j) {
-	                var item = items[j];
-	                if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== (typeof item === 'undefined' ? 'undefined' : _typeof(item))) {
-	                    continue;
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator.return) {
+	                    _iterator.return();
 	                }
-	                if (value === item || value instanceof Date && item instanceof Date && value.getTime() === item.getTime() || insensitive && typeof value === 'string' && value.toLowerCase() === item.toLowerCase() || Buffer.isBuffer(value) && Buffer.isBuffer(item) && value.length === item.length && value.toString('binary') === item.toString('binary')) {
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
+	        try {
+	            for (var _iterator2 = remove._set[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                var _item = _step2.value;
+	                this.remove(_item);
+	            }
+	        } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                    _iterator2.return();
+	                }
+	            } finally {
+	                if (_didIteratorError2) {
+	                    throw _iteratorError2;
+	                }
+	            }
+	        }
+	        return this;
+	    };
+	    InternalSet.prototype.remove = function remove(value) {
+	        this._set.delete(value);
+	        return this;
+	    };
+	    InternalSet.prototype.has = function has(value, state, options, insensitive) {
+	        if (!this._set.size) {
+	            return false;
+	        }
+	        var hasValue = this._set.has(value);
+	        if (hasValue) {
+	            return hasValue;
+	        }
+	        var extendedCheck = internals.extendedCheckForValue(value, insensitive);
+	        if (!extendedCheck) {
+	            if (state && this._hasRef) {
+	                var _iteratorNormalCompletion3 = true;
+	                var _didIteratorError3 = false;
+	                var _iteratorError3 = undefined;
+	                try {
+	                    for (var _iterator3 = this._set[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                        var item = _step3.value;
+	                        if (Ref.isRef(item)) {
+	                            item = item(state.reference || state.parent, options);
+	                            if (value === item || Array.isArray(item) && item.includes(value)) {
+	                                return true;
+	                            }
+	                        }
+	                    }
+	                } catch (err) {
+	                    _didIteratorError3 = true;
+	                    _iteratorError3 = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	                            _iterator3.return();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError3) {
+	                            throw _iteratorError3;
+	                        }
+	                    }
+	                }
+	            }
+	            return false;
+	        }
+	        return this._has(value, state, options, extendedCheck);
+	    };
+	    InternalSet.prototype._has = function _has(value, state, options, check) {
+	        var checkRef = !!(state && this._hasRef);
+	        var isReallyEqual = function isReallyEqual(item) {
+	            if (value === item) {
+	                return true;
+	            }
+	            return check(item);
+	        };
+	        var _iteratorNormalCompletion4 = true;
+	        var _didIteratorError4 = false;
+	        var _iteratorError4 = undefined;
+	        try {
+	            for (var _iterator4 = this._set[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                var item = _step4.value;
+	                if (checkRef && Ref.isRef(item)) {
+	                    item = item(state.reference || state.parent, options);
+	                    if (Array.isArray(item)) {
+	                        if (item.find(isReallyEqual)) {
+	                            return true;
+	                        }
+	                        continue;
+	                    }
+	                }
+	                if (isReallyEqual(item)) {
 	                    return true;
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError4 = true;
+	            _iteratorError4 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	                    _iterator4.return();
+	                }
+	            } finally {
+	                if (_didIteratorError4) {
+	                    throw _iteratorError4;
 	                }
 	            }
 	        }
 	        return false;
 	    };
-	    Set.prototype.values = function values(options) {
+	    InternalSet.prototype.values = function values(options) {
 	        if (options && options.stripUndefined) {
 	            var values = [];
-	            for (var i = 0; i < this._set.length; ++i) {
-	                var item = this._set[i];
-	                if (item !== undefined) {
-	                    values.push(item);
+	            var _iteratorNormalCompletion5 = true;
+	            var _didIteratorError5 = false;
+	            var _iteratorError5 = undefined;
+	            try {
+	                for (var _iterator5 = this._set[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                    var item = _step5.value;
+	                    if (item !== undefined) {
+	                        values.push(item);
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError5 = true;
+	                _iteratorError5 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	                        _iterator5.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError5) {
+	                        throw _iteratorError5;
+	                    }
 	                }
 	            }
 	            return values;
 	        }
-	        return this._set.slice();
+	        return Array.from(this._set);
 	    };
-	    Set.prototype.slice = function slice() {
-	        var newSet = new Set();
-	        newSet._set = this._set.slice();
-	        return newSet;
+	    InternalSet.prototype.slice = function slice() {
+	        var set = new InternalSet(this._set);
+	        set._hasRef = this._hasRef;
+	        return set;
 	    };
-	    Set.prototype.concat = function concat(source) {
-	        var newSet = new Set();
-	        newSet._set = this._set.concat(source._set);
-	        return newSet;
+	    InternalSet.prototype.concat = function concat(source) {
+	        var set = new InternalSet([].concat(_toConsumableArray(this._set), _toConsumableArray(source._set)));
+	        set._hasRef = !!(this._hasRef | source._hasRef);
+	        return set;
 	    };
-	    return Set;
+	    return InternalSet;
 	}();
 	                           }.call(exports, __webpack_require__(3).Buffer));
 	      }),
@@ -9841,6 +10008,9 @@ var Metamon = (function (exports) {
 	        _this._inner.matches = [];
 	        return _this;
 	    }
+	    _class.prototype._init = function _init() {
+	        return arguments.length ? this.try.apply(this, arguments) : this;
+	    };
 	    _class.prototype._base = function _base(value, state, options) {
 	        var errors = [];
 	        var il = this._inner.matches.length;
@@ -9962,6 +10132,26 @@ var Metamon = (function (exports) {
 	    return _class;
 	}(Any);
 	module.exports = new internals.Alternatives();
+	      }),
+	      (function(module, exports, __webpack_require__) {
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var Hoek = __webpack_require__(0);
+	exports.concat = function (target, source) {
+	    if (!source) {
+	        return target;
+	    }
+	    var obj = _extends({}, target);
+	    var sKeys = Object.keys(source);
+	    for (var i = 0; i < sKeys.length; ++i) {
+	        var key = sKeys[i];
+	        if (key !== 'language' || !obj.hasOwnProperty(key)) {
+	            obj[key] = source[key];
+	        } else {
+	            obj[key] = Hoek.applyToDefaults(obj[key], source[key]);
+	        }
+	    }
+	    return obj;
+	};
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -10090,6 +10280,12 @@ var Metamon = (function (exports) {
 	internals.Date.prototype.max = internals.compare('max', function (value, date) {
 	    return value <= date;
 	});
+	internals.Date.prototype.greater = internals.compare('greater', function (value, date) {
+	    return value > date;
+	});
+	internals.Date.prototype.less = internals.compare('less', function (value, date) {
+	    return value < date;
+	});
 	module.exports = new internals.Date();
 	      }),
 	      (function(module, exports, __webpack_require__) {
@@ -10099,7 +10295,7 @@ var Metamon = (function (exports) {
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 	var Hoek = __webpack_require__(0);
-	var Topo = __webpack_require__(28);
+	var Topo = __webpack_require__(31);
 	var Any = __webpack_require__(2);
 	var Errors = __webpack_require__(6);
 	var Cast = __webpack_require__(4);
@@ -10116,6 +10312,9 @@ var Metamon = (function (exports) {
 	        _this._inner.patterns = [];
 	        return _this;
 	    }
+	    _class.prototype._init = function _init() {
+	        return arguments.length ? this.keys.apply(this, arguments) : this;
+	    };
 	    _class.prototype._base = function _base(value, state, options) {
 	        var target = value;
 	        var errors = [];
@@ -10228,14 +10427,14 @@ var Metamon = (function (exports) {
 	        !this._inner.patterns.length && !this._inner.dependencies.length) {
 	            return finish();
 	        }
-	        var unprocessed = Hoek.mapToObject(Object.keys(target));
+	        var unprocessed = new Set(Object.keys(target));
 	        if (this._inner.children) {
 	            var stripProps = [];
 	            for (var _i2 = 0; _i2 < this._inner.children.length; ++_i2) {
 	                var child = this._inner.children[_i2];
 	                var key = child.key;
 	                var item = target[key];
-	                delete unprocessed[key];
+	                unprocessed.delete(key);
 	                var localState = { key: key, path: state.path.concat(key), parent: target, reference: state.reference };
 	                var result = child.schema._validate(item, localState, options);
 	                if (result.errors) {
@@ -10256,54 +10455,115 @@ var Metamon = (function (exports) {
 	                delete target[stripProps[_i3]];
 	            }
 	        }
-	        var unprocessedKeys = Object.keys(unprocessed);
-	        if (unprocessedKeys.length && this._inner.patterns.length) {
-	            for (var _i4 = 0; _i4 < unprocessedKeys.length; ++_i4) {
-	                var _key2 = unprocessedKeys[_i4];
-	                var _localState = { key: _key2, path: state.path.concat(_key2), parent: target, reference: state.reference };
-	                var _item = target[_key2];
-	                for (var _j2 = 0; _j2 < this._inner.patterns.length; ++_j2) {
-	                    var pattern = this._inner.patterns[_j2];
-	                    if (pattern.regex.test(_key2)) {
-	                        delete unprocessed[_key2];
-	                        var _result = pattern.rule._validate(_item, _localState, options);
-	                        if (_result.errors) {
-	                            errors.push(this.createError('object.child', { key: _key2, child: pattern.rule._getLabel(_key2), reason: _result.errors }, _localState, options));
-	                            if (options.abortEarly) {
-	                                return finish();
+	        if (unprocessed.size && this._inner.patterns.length) {
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	            try {
+	                for (var _iterator = unprocessed[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var _key2 = _step.value;
+	                    var _localState = {
+	                        key: _key2,
+	                        path: state.path.concat(_key2),
+	                        parent: target,
+	                        reference: state.reference
+	                    };
+	                    var _item = target[_key2];
+	                    for (var _i4 = 0; _i4 < this._inner.patterns.length; ++_i4) {
+	                        var pattern = this._inner.patterns[_i4];
+	                        if (pattern.regex ? pattern.regex.test(_key2) : !pattern.schema.validate(_key2).error) {
+	                            unprocessed.delete(_key2);
+	                            var _result = pattern.rule._validate(_item, _localState, options);
+	                            if (_result.errors) {
+	                                errors.push(this.createError('object.child', {
+	                                    key: _key2,
+	                                    child: pattern.rule._getLabel(_key2),
+	                                    reason: _result.errors
+	                                }, _localState, options));
+	                                if (options.abortEarly) {
+	                                    return finish();
+	                                }
 	                            }
-	                        }
-	                        if (_result.value !== undefined) {
 	                            target[_key2] = _result.value;
 	                        }
 	                    }
 	                }
-	            }
-	            unprocessedKeys = Object.keys(unprocessed);
-	        }
-	        if ((this._inner.children || this._inner.patterns.length) && unprocessedKeys.length) {
-	            if (options.stripUnknown && this._flags.allowUnknown !== true || options.skipFunctions) {
-	                var stripUnknown = options.stripUnknown ? options.stripUnknown === true ? true : !!options.stripUnknown.objects : false;
-	                for (var _i5 = 0; _i5 < unprocessedKeys.length; ++_i5) {
-	                    var _key3 = unprocessedKeys[_i5];
-	                    if (stripUnknown) {
-	                        delete target[_key3];
-	                        delete unprocessed[_key3];
-	                    } else if (typeof target[_key3] === 'function') {
-	                        delete unprocessed[_key3];
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
 	                    }
 	                }
-	                unprocessedKeys = Object.keys(unprocessed);
 	            }
-	            if (unprocessedKeys.length && (this._flags.allowUnknown !== undefined ? !this._flags.allowUnknown : !options.allowUnknown)) {
-	                for (var _i6 = 0; _i6 < unprocessedKeys.length; ++_i6) {
-	                    var unprocessedKey = unprocessedKeys[_i6];
-	                    errors.push(this.createError('object.allowUnknown', { child: unprocessedKey }, { key: unprocessedKey, path: state.path.concat(unprocessedKey) }, options, {}));
+	        }
+	        if (unprocessed.size && (this._inner.children || this._inner.patterns.length)) {
+	            if (options.stripUnknown && this._flags.allowUnknown !== true || options.skipFunctions) {
+	                var stripUnknown = options.stripUnknown ? options.stripUnknown === true ? true : !!options.stripUnknown.objects : false;
+	                var _iteratorNormalCompletion2 = true;
+	                var _didIteratorError2 = false;
+	                var _iteratorError2 = undefined;
+	                try {
+	                    for (var _iterator2 = unprocessed[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                        var _key3 = _step2.value;
+	                        if (stripUnknown) {
+	                            delete target[_key3];
+	                            unprocessed.delete(_key3);
+	                        } else if (typeof target[_key3] === 'function') {
+	                            unprocessed.delete(_key3);
+	                        }
+	                    }
+	                } catch (err) {
+	                    _didIteratorError2 = true;
+	                    _iteratorError2 = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                            _iterator2.return();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError2) {
+	                            throw _iteratorError2;
+	                        }
+	                    }
+	                }
+	            }
+	            if (this._flags.allowUnknown !== undefined ? !this._flags.allowUnknown : !options.allowUnknown) {
+	                var _iteratorNormalCompletion3 = true;
+	                var _didIteratorError3 = false;
+	                var _iteratorError3 = undefined;
+	                try {
+	                    for (var _iterator3 = unprocessed[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                        var unprocessedKey = _step3.value;
+	                        errors.push(this.createError('object.allowUnknown', { child: unprocessedKey }, {
+	                            key: unprocessedKey,
+	                            path: state.path.concat(unprocessedKey)
+	                        }, options, {}));
+	                    }
+	                } catch (err) {
+	                    _didIteratorError3 = true;
+	                    _iteratorError3 = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	                            _iterator3.return();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError3) {
+	                            throw _iteratorError3;
+	                        }
+	                    }
 	                }
 	            }
 	        }
-	        for (var _i7 = 0; _i7 < this._inner.dependencies.length; ++_i7) {
-	            var dep = this._inner.dependencies[_i7];
+	        for (var _i5 = 0; _i5 < this._inner.dependencies.length; ++_i5) {
+	            var dep = this._inner.dependencies[_i5];
 	            var err = internals[dep.type].call(this, dep.key !== null && target[dep.key], dep.peers, target, { key: dep.key, path: dep.key === null ? state.path : state.path.concat(dep.key) }, options);
 	            if (err instanceof Errors.Err) {
 	                errors.push(err);
@@ -10336,8 +10596,8 @@ var Metamon = (function (exports) {
 	                }
 	            }
 	        }
-	        for (var _i8 = 0; _i8 < children.length; ++_i8) {
-	            var key = children[_i8];
+	        for (var _i6 = 0; _i6 < children.length; ++_i6) {
+	            var key = children[_i6];
 	            var _child = schema[key];
 	            try {
 	                var cast = Cast.schema(this._currentJoi, _child);
@@ -10353,6 +10613,12 @@ var Metamon = (function (exports) {
 	        }
 	        obj._inner.children = topo.nodes;
 	        return obj;
+	    };
+	    _class.prototype.append = function append(schema) {
+	        if (schema === null || schema === undefined || Object.keys(schema).length === 0) {
+	            return this;
+	        }
+	        return this.keys(schema);
 	    };
 	    _class.prototype.unknown = function unknown(allow) {
 	        var value = allow !== false;
@@ -10391,9 +10657,12 @@ var Metamon = (function (exports) {
 	        });
 	    };
 	    _class.prototype.pattern = function pattern(_pattern, schema) {
-	        Hoek.assert(_pattern instanceof RegExp, 'Invalid regular expression');
+	        var isRegExp = _pattern instanceof RegExp;
+	        Hoek.assert(isRegExp || _pattern instanceof Any, 'pattern must be a regex or schema');
 	        Hoek.assert(schema !== undefined, 'Invalid rule');
-	        _pattern = new RegExp(_pattern.source, _pattern.ignoreCase ? 'i' : undefined);
+	        if (isRegExp) {
+	            _pattern = new RegExp(_pattern.source, _pattern.ignoreCase ? 'i' : undefined);
+	        }
 	        try {
 	            schema = Cast.schema(this._currentJoi, schema);
 	        } catch (castErr) {
@@ -10403,7 +10672,11 @@ var Metamon = (function (exports) {
 	            throw castErr;
 	        }
 	        var obj = this.clone();
-	        obj._inner.patterns.push({ regex: _pattern, rule: schema });
+	        if (isRegExp) {
+	            obj._inner.patterns.push({ regex: _pattern, rule: schema });
+	        } else {
+	            obj._inner.patterns.push({ schema: _pattern, rule: schema });
+	        }
 	        return obj;
 	    };
 	    _class.prototype.schema = function schema() {
@@ -10415,9 +10688,11 @@ var Metamon = (function (exports) {
 	        });
 	    };
 	    _class.prototype.with = function _with(key, peers) {
+	        Hoek.assert(arguments.length === 2, 'Invalid number of arguments, expected 2.');
 	        return this._dependency('with', key, peers);
 	    };
 	    _class.prototype.without = function without(key, peers) {
+	        Hoek.assert(arguments.length === 2, 'Invalid number of arguments, expected 2.');
 	        return this._dependency('without', key, peers);
 	    };
 	    _class.prototype.xor = function xor() {
@@ -10539,8 +10814,8 @@ var Metamon = (function (exports) {
 	        }
 	        if (this._inner.children && !shallow) {
 	            description.children = {};
-	            for (var _i9 = 0; _i9 < this._inner.children.length; ++_i9) {
-	                var child = this._inner.children[_i9];
+	            for (var _i7 = 0; _i7 < this._inner.children.length; ++_i7) {
+	                var child = this._inner.children[_i7];
 	                description.children[child.key] = child.schema.describe();
 	            }
 	        }
@@ -10549,9 +10824,13 @@ var Metamon = (function (exports) {
 	        }
 	        if (this._inner.patterns.length) {
 	            description.patterns = [];
-	            for (var _i10 = 0; _i10 < this._inner.patterns.length; ++_i10) {
-	                var pattern = this._inner.patterns[_i10];
-	                description.patterns.push({ regex: pattern.regex.toString(), rule: pattern.rule.describe() });
+	            for (var _i8 = 0; _i8 < this._inner.patterns.length; ++_i8) {
+	                var pattern = this._inner.patterns[_i8];
+	                if (pattern.regex) {
+	                    description.patterns.push({ regex: pattern.regex.toString(), rule: pattern.rule.describe() });
+	                } else {
+	                    description.patterns.push({ schema: pattern.schema.describe(), rule: pattern.rule.describe() });
+	                }
 	            }
 	        }
 	        if (this._inner.renames.length > 0) {
@@ -10805,6 +11084,764 @@ var Metamon = (function (exports) {
 	      (function(module, exports) {
 	      }),
 	      (function(module, exports, __webpack_require__) {
+	                           (function(global, process) {
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+	exports.deprecate = function(fn, msg) {
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+	  return deprecated;
+	};
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+	function inspect(obj, opts) {
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    exports._extend(ctx, opts);
+	  }
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  'regexp': 'red'
+	};
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
+	}
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
+	function arrayToHash(array) {
+	  var hash = {};
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
+	  return hash;
+	}
+	function formatValue(ctx, value, recurseTimes) {
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      value.inspect !== exports.inspect &&
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
+	  var base = '', array = false, braces = ['{', '}'];
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+	  ctx.seen.push(value);
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+	  ctx.seen.pop();
+	  return reduceToSingleString(output, base, braces);
+	}
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+	  return name + ': ' + str;
+	}
+	function reduceToSingleString(output, base, braces) {
+	  var length = output.reduce(function(prev, cur) {
+	    if (cur.indexOf('\n') >= 0) ;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+	exports.isBuffer = __webpack_require__(40);
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+	exports.inherits = __webpack_require__(39);
+	exports._extend = function(origin, add) {
+	  if (!add || !isObject(add)) return origin;
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+	                           }.call(exports, __webpack_require__(5), __webpack_require__(7)));
+	      }),
+	      (function(module, exports, __webpack_require__) {
+	                           (function(global) {
+	/*!
+	 * The buffer module from node.js, for the browser.
+	 *
+	 * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+	 * @license  MIT
+	 */
+	function compare(a, b) {
+	  if (a === b) {
+	    return 0;
+	  }
+	  var x = a.length;
+	  var y = b.length;
+	  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+	    if (a[i] !== b[i]) {
+	      x = a[i];
+	      y = b[i];
+	      break;
+	    }
+	  }
+	  if (x < y) {
+	    return -1;
+	  }
+	  if (y < x) {
+	    return 1;
+	  }
+	  return 0;
+	}
+	function isBuffer(b) {
+	  if (global.Buffer && typeof global.Buffer.isBuffer === 'function') {
+	    return global.Buffer.isBuffer(b);
+	  }
+	  return !!(b != null && b._isBuffer);
+	}
+	var util = __webpack_require__(16);
+	var hasOwn = Object.prototype.hasOwnProperty;
+	var pSlice = Array.prototype.slice;
+	var functionsHaveNames = (function () {
+	  return function foo() {}.name === 'foo';
+	}());
+	function pToString (obj) {
+	  return Object.prototype.toString.call(obj);
+	}
+	function isView(arrbuf) {
+	  if (isBuffer(arrbuf)) {
+	    return false;
+	  }
+	  if (typeof global.ArrayBuffer !== 'function') {
+	    return false;
+	  }
+	  if (typeof ArrayBuffer.isView === 'function') {
+	    return ArrayBuffer.isView(arrbuf);
+	  }
+	  if (!arrbuf) {
+	    return false;
+	  }
+	  if (arrbuf instanceof DataView) {
+	    return true;
+	  }
+	  if (arrbuf.buffer && arrbuf.buffer instanceof ArrayBuffer) {
+	    return true;
+	  }
+	  return false;
+	}
+	var assert = module.exports = ok;
+	var regex = /\s*function\s+([^\(\s]*)\s*/;
+	function getName(func) {
+	  if (!util.isFunction(func)) {
+	    return;
+	  }
+	  if (functionsHaveNames) {
+	    return func.name;
+	  }
+	  var str = func.toString();
+	  var match = str.match(regex);
+	  return match && match[1];
+	}
+	assert.AssertionError = function AssertionError(options) {
+	  this.name = 'AssertionError';
+	  this.actual = options.actual;
+	  this.expected = options.expected;
+	  this.operator = options.operator;
+	  if (options.message) {
+	    this.message = options.message;
+	    this.generatedMessage = false;
+	  } else {
+	    this.message = getMessage(this);
+	    this.generatedMessage = true;
+	  }
+	  var stackStartFunction = options.stackStartFunction || fail;
+	  if (Error.captureStackTrace) {
+	    Error.captureStackTrace(this, stackStartFunction);
+	  } else {
+	    var err = new Error();
+	    if (err.stack) {
+	      var out = err.stack;
+	      var fn_name = getName(stackStartFunction);
+	      var idx = out.indexOf('\n' + fn_name);
+	      if (idx >= 0) {
+	        var next_line = out.indexOf('\n', idx + 1);
+	        out = out.substring(next_line + 1);
+	      }
+	      this.stack = out;
+	    }
+	  }
+	};
+	util.inherits(assert.AssertionError, Error);
+	function truncate(s, n) {
+	  if (typeof s === 'string') {
+	    return s.length < n ? s : s.slice(0, n);
+	  } else {
+	    return s;
+	  }
+	}
+	function inspect(something) {
+	  if (functionsHaveNames || !util.isFunction(something)) {
+	    return util.inspect(something);
+	  }
+	  var rawname = getName(something);
+	  var name = rawname ? ': ' + rawname : '';
+	  return '[Function' +  name + ']';
+	}
+	function getMessage(self) {
+	  return truncate(inspect(self.actual), 128) + ' ' +
+	         self.operator + ' ' +
+	         truncate(inspect(self.expected), 128);
+	}
+	function fail(actual, expected, message, operator, stackStartFunction) {
+	  throw new assert.AssertionError({
+	    message: message,
+	    actual: actual,
+	    expected: expected,
+	    operator: operator,
+	    stackStartFunction: stackStartFunction
+	  });
+	}
+	assert.fail = fail;
+	function ok(value, message) {
+	  if (!value) fail(value, true, message, '==', assert.ok);
+	}
+	assert.ok = ok;
+	assert.equal = function equal(actual, expected, message) {
+	  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
+	};
+	assert.notEqual = function notEqual(actual, expected, message) {
+	  if (actual == expected) {
+	    fail(actual, expected, message, '!=', assert.notEqual);
+	  }
+	};
+	assert.deepEqual = function deepEqual(actual, expected, message) {
+	  if (!_deepEqual(actual, expected, false)) {
+	    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
+	  }
+	};
+	assert.deepStrictEqual = function deepStrictEqual(actual, expected, message) {
+	  if (!_deepEqual(actual, expected, true)) {
+	    fail(actual, expected, message, 'deepStrictEqual', assert.deepStrictEqual);
+	  }
+	};
+	function _deepEqual(actual, expected, strict, memos) {
+	  if (actual === expected) {
+	    return true;
+	  } else if (isBuffer(actual) && isBuffer(expected)) {
+	    return compare(actual, expected) === 0;
+	  } else if (util.isDate(actual) && util.isDate(expected)) {
+	    return actual.getTime() === expected.getTime();
+	  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+	    return actual.source === expected.source &&
+	           actual.global === expected.global &&
+	           actual.multiline === expected.multiline &&
+	           actual.lastIndex === expected.lastIndex &&
+	           actual.ignoreCase === expected.ignoreCase;
+	  } else if ((actual === null || typeof actual !== 'object') &&
+	             (expected === null || typeof expected !== 'object')) {
+	    return strict ? actual === expected : actual == expected;
+	  } else if (isView(actual) && isView(expected) &&
+	             pToString(actual) === pToString(expected) &&
+	             !(actual instanceof Float32Array ||
+	               actual instanceof Float64Array)) {
+	    return compare(new Uint8Array(actual.buffer),
+	                   new Uint8Array(expected.buffer)) === 0;
+	  } else if (isBuffer(actual) !== isBuffer(expected)) {
+	    return false;
+	  } else {
+	    memos = memos || {actual: [], expected: []};
+	    var actualIndex = memos.actual.indexOf(actual);
+	    if (actualIndex !== -1) {
+	      if (actualIndex === memos.expected.indexOf(expected)) {
+	        return true;
+	      }
+	    }
+	    memos.actual.push(actual);
+	    memos.expected.push(expected);
+	    return objEquiv(actual, expected, strict, memos);
+	  }
+	}
+	function isArguments(object) {
+	  return Object.prototype.toString.call(object) == '[object Arguments]';
+	}
+	function objEquiv(a, b, strict, actualVisitedObjects) {
+	  if (a === null || a === undefined || b === null || b === undefined)
+	    return false;
+	  if (util.isPrimitive(a) || util.isPrimitive(b))
+	    return a === b;
+	  if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b))
+	    return false;
+	  var aIsArgs = isArguments(a);
+	  var bIsArgs = isArguments(b);
+	  if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
+	    return false;
+	  if (aIsArgs) {
+	    a = pSlice.call(a);
+	    b = pSlice.call(b);
+	    return _deepEqual(a, b, strict);
+	  }
+	  var ka = objectKeys(a);
+	  var kb = objectKeys(b);
+	  var key, i;
+	  if (ka.length !== kb.length)
+	    return false;
+	  ka.sort();
+	  kb.sort();
+	  for (i = ka.length - 1; i >= 0; i--) {
+	    if (ka[i] !== kb[i])
+	      return false;
+	  }
+	  for (i = ka.length - 1; i >= 0; i--) {
+	    key = ka[i];
+	    if (!_deepEqual(a[key], b[key], strict, actualVisitedObjects))
+	      return false;
+	  }
+	  return true;
+	}
+	assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
+	  if (_deepEqual(actual, expected, false)) {
+	    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
+	  }
+	};
+	assert.notDeepStrictEqual = notDeepStrictEqual;
+	function notDeepStrictEqual(actual, expected, message) {
+	  if (_deepEqual(actual, expected, true)) {
+	    fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
+	  }
+	}
+	assert.strictEqual = function strictEqual(actual, expected, message) {
+	  if (actual !== expected) {
+	    fail(actual, expected, message, '===', assert.strictEqual);
+	  }
+	};
+	assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
+	  if (actual === expected) {
+	    fail(actual, expected, message, '!==', assert.notStrictEqual);
+	  }
+	};
+	function expectedException(actual, expected) {
+	  if (!actual || !expected) {
+	    return false;
+	  }
+	  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
+	    return expected.test(actual);
+	  }
+	  try {
+	    if (actual instanceof expected) {
+	      return true;
+	    }
+	  } catch (e) {
+	  }
+	  if (Error.isPrototypeOf(expected)) {
+	    return false;
+	  }
+	  return expected.call({}, actual) === true;
+	}
+	function _tryBlock(block) {
+	  var error;
+	  try {
+	    block();
+	  } catch (e) {
+	    error = e;
+	  }
+	  return error;
+	}
+	function _throws(shouldThrow, block, expected, message) {
+	  var actual;
+	  if (typeof block !== 'function') {
+	    throw new TypeError('"block" argument must be a function');
+	  }
+	  if (typeof expected === 'string') {
+	    message = expected;
+	    expected = null;
+	  }
+	  actual = _tryBlock(block);
+	  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
+	            (message ? ' ' + message : '.');
+	  if (shouldThrow && !actual) {
+	    fail(actual, expected, 'Missing expected exception' + message);
+	  }
+	  var userProvidedMessage = typeof message === 'string';
+	  var isUnwantedException = !shouldThrow && util.isError(actual);
+	  var isUnexpectedException = !shouldThrow && actual && !expected;
+	  if ((isUnwantedException &&
+	      userProvidedMessage &&
+	      expectedException(actual, expected)) ||
+	      isUnexpectedException) {
+	    fail(actual, expected, 'Got unwanted exception' + message);
+	  }
+	  if ((shouldThrow && actual && expected &&
+	      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
+	    throw actual;
+	  }
+	}
+	assert.throws = function(block,             error,             message) {
+	  _throws(true, block, error, message);
+	};
+	assert.doesNotThrow = function(block,             error,             message) {
+	  _throws(false, block, error, message);
+	};
+	assert.ifError = function(err) { if (err) throw err; };
+	var objectKeys = Object.keys || function (obj) {
+	  var keys = [];
+	  for (var key in obj) {
+	    if (hasOwn.call(obj, key)) keys.push(key);
+	  }
+	  return keys;
+	};
+	                           }.call(exports, __webpack_require__(5)));
+	      }),
+	      (function(module, exports, __webpack_require__) {
 	                           (function(Buffer) {
 	var internals = {};
 	exports.escapeJavaScript = function (input) {
@@ -10864,7 +11901,7 @@ var Metamon = (function (exports) {
 	    if (charCode >= 256) {
 	        return '\\u' + internals.padLeft('' + charCode, 4);
 	    }
-	    var hexValue = new Buffer(String.fromCharCode(charCode), 'ascii').toString('hex');
+	    var hexValue = Buffer.from(String.fromCharCode(charCode), 'ascii').toString('hex');
 	    return '\\x' + internals.padLeft(hexValue, 2);
 	};
 	internals.escapeHtmlChar = function (charCode) {
@@ -10875,7 +11912,7 @@ var Metamon = (function (exports) {
 	    if (charCode >= 256) {
 	        return '&#' + charCode + ';';
 	    }
-	    var hexValue = new Buffer(String.fromCharCode(charCode), 'ascii').toString('hex');
+	    var hexValue = Buffer.from(String.fromCharCode(charCode), 'ascii').toString('hex');
 	    return '&#x' + internals.padLeft(hexValue, 2) + ';';
 	};
 	internals.padLeft = function (str, len) {
@@ -10919,9 +11956,9 @@ var Metamon = (function (exports) {
 	                           }.call(exports, __webpack_require__(3).Buffer));
 	      }),
 	      (function(module, exports, __webpack_require__) {
-	                           (function(Buffer, process) {
+	                           (function(Buffer) {
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	var Punycode = __webpack_require__(35);
+	var Punycode = __webpack_require__(38);
 	var internals = {
 	    hasOwn: Object.prototype.hasOwnProperty,
 	    indexOf: Array.prototype.indexOf,
@@ -10944,6 +11981,7 @@ var Metamon = (function (exports) {
 	        rfc5321AddressLiteral: 12,
 	        cfwsComment: 17,
 	        cfwsFWS: 18,
+	        undesiredNonAscii: 25,
 	        deprecatedLocalPart: 33,
 	        deprecatedFWS: 34,
 	        deprecatedQTEXT: 35,
@@ -11035,12 +12073,17 @@ var Metamon = (function (exports) {
 	    ipV4: /\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)$/,
 	    ipV6: /^[a-fA-F\d]{0,4}$/
 	};
+	internals.normalizeSupportsNul = '\0'.normalize('NFC') === '\0';
 	internals.nulNormalize = function (email) {
-	    var emailPieces = email.split('\0');
-	    emailPieces = emailPieces.map(function (string) {
-	        return string.normalize('NFC');
-	    });
-	    return emailPieces.join('\0');
+	    return email.split('\0').map(function (part) {
+	        return part.normalize('NFC');
+	    }).join('\0');
+	};
+	internals.normalize = function (email) {
+	    if (!internals.normalizeSupportsNul && email.indexOf('\0') >= 0) {
+	        return internals.nulNormalize(email);
+	    }
+	    return email.normalize('NFC');
 	};
 	internals.checkIpV6 = function (items) {
 	    return items.every(function (value) {
@@ -11101,6 +12144,10 @@ var Metamon = (function (exports) {
 	            maxResult = value;
 	        }
 	    };
+	    var allowUnicode = options.allowUnicode === undefined || !!options.allowUnicode;
+	    if (!allowUnicode && /[^\x00-\x7f]/.test(email)) {
+	        updateResult(internals.diagnoses.undesiredNonAscii);
+	    }
 	    var context = {
 	        now: internals.components.localpart,
 	        prev: internals.components.localpart,
@@ -11603,13 +12650,8 @@ var Metamon = (function (exports) {
 	    }
 	    return diag;
 	}();
-	exports.normalize = internals.normalize = function (email) {
-	    if (process.version[1] === '4' && email.indexOf('\0') >= 0) {
-	        return internals.nulNormalize(email);
-	    }
-	    return email.normalize('NFC');
-	};
-	                           }.call(exports, __webpack_require__(3).Buffer, __webpack_require__(5)));
+	exports.normalize = internals.normalize;
+	                           }.call(exports, __webpack_require__(3).Buffer));
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	exports.errors = {
@@ -11665,6 +12707,8 @@ var Metamon = (function (exports) {
 	        strict: 'must be a valid date',
 	        min: 'must be larger than or equal to "{{limit}}"',
 	        max: 'must be less than or equal to "{{limit}}"',
+	        less: 'must be less than "{{limit}}"',
+	        greater: 'must be greater than "{{limit}}"',
 	        isoDate: 'must be a valid ISO 8601 date',
 	        timestamp: {
 	            javascript: 'must be a valid timestamp or number of milliseconds',
@@ -11722,7 +12766,8 @@ var Metamon = (function (exports) {
 	        positive: 'must be a positive number',
 	        precision: 'must have no more than {{limit}} decimal places',
 	        ref: 'references "{{ref}}" which is not a number',
-	        multiple: 'must be a multiple of {{multiple}}'
+	        multiple: 'must be a multiple of {{multiple}}',
+	        port: 'must be a valid port'
 	    },
 	    string: {
 	        base: 'must be a string',
@@ -11746,6 +12791,7 @@ var Metamon = (function (exports) {
 	        isoDate: 'must be a valid ISO 8601 date',
 	        guid: 'must be a valid GUID',
 	        hex: 'must only contain hexadecimal characters',
+	        hexAlign: 'hex decoded representation must be byte aligned',
 	        base64: 'must be a valid base64 string',
 	        hostname: 'must be a valid hostname',
 	        normalize: 'must be unicode normalized in the {{form}} form',
@@ -11862,6 +12908,7 @@ var Metamon = (function (exports) {
 	                if (options.abortEarly) {
 	                    return errors;
 	                }
+	                ordereds.shift();
 	                continue;
 	            }
 	            for (var j = 0; j < this._inner.exclusions.length; ++j) {
@@ -11872,6 +12919,7 @@ var Metamon = (function (exports) {
 	                    if (options.abortEarly) {
 	                        return errors;
 	                    }
+	                    ordereds.shift();
 	                    break;
 	                }
 	            }
@@ -12131,10 +13179,10 @@ var Metamon = (function (exports) {
 	        }
 	        return this._test('unique', settings, function (value, state, options) {
 	            var found = {
-	                string: {},
-	                number: {},
-	                undefined: {},
-	                boolean: {},
+	                string: Object.create(null),
+	                number: Object.create(null),
+	                undefined: Object.create(null),
+	                boolean: Object.create(null),
 	                object: new Map(),
 	                function: new Map(),
 	                custom: new Map()
@@ -12280,7 +13328,7 @@ var Metamon = (function (exports) {
 	        };
 	        if (typeof value === 'string' && options.convert) {
 	            try {
-	                result.value = new Buffer(value, this._flags.encoding);
+	                result.value = Buffer.from(value, this._flags.encoding);
 	            } catch (e) {}
 	        }
 	        result.errors = Buffer.isBuffer(result.value) ? null : this.createError('binary.base', null, state, options);
@@ -12413,7 +13461,7 @@ var Metamon = (function (exports) {
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 	var Hoek = __webpack_require__(0);
-	var ObjectType = __webpack_require__(12);
+	var ObjectType = __webpack_require__(13);
 	var Ref = __webpack_require__(1);
 	var internals = {};
 	internals.Func = function (_ObjectType$construct) {
@@ -12601,6 +13649,14 @@ var Metamon = (function (exports) {
 	        obj._flags.precision = limit;
 	        return obj;
 	    };
+	    _class.prototype.port = function port() {
+	        return this._test('port', undefined, function (value, state, options) {
+	            if (!Number.isSafeInteger(value) || value < 0 || value > 65535) {
+	                return this.createError('number.port', { value: value }, state, options);
+	            }
+	            return value;
+	        });
+	    };
 	    return _class;
 	}(Any);
 	internals.compare = function (type, compare) {
@@ -12646,14 +13702,14 @@ var Metamon = (function (exports) {
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-	var Net = __webpack_require__(14);
+	var Net = __webpack_require__(15);
 	var Hoek = __webpack_require__(0);
 	var Isemail = void 0;
 	var Any = __webpack_require__(2);
 	var Ref = __webpack_require__(1);
-	var JoiDate = __webpack_require__(11);
-	var Uri = __webpack_require__(27);
-	var Ip = __webpack_require__(26);
+	var JoiDate = __webpack_require__(12);
+	var Uri = __webpack_require__(30);
+	var Ip = __webpack_require__(29);
 	var internals = {
 	    uriRegex: Uri.createUriRegex(),
 	    ipRegex: Ip.createIpRegex(['ipv4', 'ipv6', 'ipvfuture'], 'optional'),
@@ -12704,6 +13760,9 @@ var Metamon = (function (exports) {
 	                        break;
 	                    }
 	                }
+	            }
+	            if (this._flags.byteAligned && value.length % 2 !== 0) {
+	                value = '0' + value;
 	            }
 	        }
 	        return {
@@ -12780,7 +13839,7 @@ var Metamon = (function (exports) {
 	            Hoek.assert(typeof isEmailOptions.errorLevel === 'undefined' || typeof isEmailOptions.errorLevel === 'boolean' || Number.isSafeInteger(isEmailOptions.errorLevel) && isEmailOptions.errorLevel >= 0, 'errorLevel must be a non-negative integer or boolean');
 	        }
 	        return this._test('email', isEmailOptions, function (value, state, options) {
-	            Isemail = Isemail || __webpack_require__(16);
+	            Isemail = Isemail || __webpack_require__(19);
 	            try {
 	                var result = Isemail.validate(value, isEmailOptions);
 	                if (result === true || result === 0) {
@@ -12925,13 +13984,24 @@ var Metamon = (function (exports) {
 	        });
 	    };
 	    _class.prototype.hex = function hex() {
+	        var hexOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	        Hoek.assert((typeof hexOptions === 'undefined' ? 'undefined' : _typeof(hexOptions)) === 'object', 'hex options must be an object');
+	        Hoek.assert(typeof hexOptions.byteAligned === 'undefined' || typeof hexOptions.byteAligned === 'boolean', 'byteAligned must be boolean');
+	        var byteAligned = hexOptions.byteAligned === true;
 	        var regex = /^[a-f0-9]+$/i;
-	        return this._test('hex', regex, function (value, state, options) {
+	        var obj = this._test('hex', regex, function (value, state, options) {
 	            if (regex.test(value)) {
+	                if (byteAligned && value.length % 2 !== 0) {
+	                    return this.createError('string.hexAlign', { value: value }, state, options);
+	                }
 	                return value;
 	            }
 	            return this.createError('string.hex', { value: value }, state, options);
 	        });
+	        if (byteAligned) {
+	            obj._flags.byteAligned = true;
+	        }
+	        return obj;
 	    };
 	    _class.prototype.base64 = function base64() {
 	        var base64Options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -13065,7 +14135,7 @@ var Metamon = (function (exports) {
 	                           }.call(exports, __webpack_require__(3).Buffer));
 	      }),
 	      (function(module, exports, __webpack_require__) {
-	var RFC3986 = __webpack_require__(13);
+	var RFC3986 = __webpack_require__(14);
 	var internals = {
 	    Ip: {
 	        cidrs: {
@@ -13107,7 +14177,7 @@ var Metamon = (function (exports) {
 	module.exports = internals.Ip;
 	      }),
 	      (function(module, exports, __webpack_require__) {
-	var RFC3986 = __webpack_require__(13);
+	var RFC3986 = __webpack_require__(14);
 	var internals = {
 	    Uri: {
 	        createUriRegex: function createUriRegex(optionalScheme, allowRelative, relativeOnly) {
@@ -13452,7 +14522,7 @@ var Metamon = (function (exports) {
 	};
 	      }),
 	      (function(module, exports) {
-	module.exports = {"_args":[["joi@13.0.1","/Users/jeff/projects/joi-browser"]],"_development":true,"_from":"joi@13.0.1","_id":"joi@13.0.1","_inBundle":false,"_integrity":"sha512-ChTMfmbIg5yrN9pUdeaLL8vzylMQhUteXiXa1MWINsMUs3jTQ8I87lUZwR5GdfCLJlpK04U7UgrxgmU8Zp7PhQ==","_location":"/joi","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"joi@13.0.1","name":"joi","escapedName":"joi","rawSpec":"13.0.1","saveSpec":null,"fetchSpec":"13.0.1"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/joi/-/joi-13.0.1.tgz","_spec":"13.0.1","_where":"/Users/jeff/projects/joi-browser","bugs":{"url":"https://github.com/hapijs/joi/issues"},"dependencies":{"hoek":"5.x.x","isemail":"3.x.x","topo":"3.x.x"},"description":"Object schema validation","devDependencies":{"hapitoc":"1.x.x","lab":"14.x.x"},"engines":{"node":">=8.3.0"},"homepage":"https://github.com/hapijs/joi","keywords":["hapi","schema","validation"],"license":"BSD-3-Clause","main":"lib/index.js","name":"joi","repository":{"type":"git","url":"git://github.com/hapijs/joi.git"},"scripts":{"test":"lab -t 100 -a code -L","test-cov-html":"lab -r html -o coverage.html -a code","test-debug":"lab -a code","toc":"hapitoc","version":"npm run toc && git add API.md README.md"},"version":"13.0.1"};
+	module.exports = {"_args":[["joi@13.4.0","/Users/jeff/projects/joi-browser"]],"_development":true,"_from":"joi@13.4.0","_id":"joi@13.4.0","_inBundle":false,"_integrity":"sha512-JuK4GjEu6j7zr9FuVe2MAseZ6si/8/HaY0qMAejfDFHp7jcH4OKE937mIHM5VT4xDS0q7lpQbszbxKV9rm0yUg==","_location":"/joi","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"joi@13.4.0","name":"joi","escapedName":"joi","rawSpec":"13.4.0","saveSpec":null,"fetchSpec":"13.4.0"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/joi/-/joi-13.4.0.tgz","_spec":"13.4.0","_where":"/Users/jeff/projects/joi-browser","bugs":{"url":"https://github.com/hapijs/joi/issues"},"dependencies":{"hoek":"5.x.x","isemail":"3.x.x","topo":"3.x.x"},"description":"Object schema validation","devDependencies":{"code":"5.x.x","hapitoc":"1.x.x","lab":"15.x.x"},"engines":{"node":">=8.9.0"},"homepage":"https://github.com/hapijs/joi","keywords":["hapi","schema","validation"],"license":"BSD-3-Clause","main":"lib/index.js","name":"joi","repository":{"type":"git","url":"git://github.com/hapijs/joi.git"},"scripts":{"test":"lab -t 100 -a code -L","test-cov-html":"lab -r html -o coverage.html -a code","test-debug":"lab -a code","toc":"hapitoc","version":"npm run toc && git add API.md README.md"},"version":"13.4.0"};
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	                           (function(process) {
@@ -13597,7 +14667,7 @@ var Metamon = (function (exports) {
 	        return str.substr(start, len);
 	    }
 	;
-	                           }.call(exports, __webpack_require__(5)));
+	                           }.call(exports, __webpack_require__(7)));
 	      }),
 	      (function(module, exports, __webpack_require__) {
 	                           (function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;
@@ -13879,7 +14949,7 @@ var Metamon = (function (exports) {
 					__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		}
 	}(this));
-	                           }.call(exports, __webpack_require__(39)(module), __webpack_require__(7)));
+	                           }.call(exports, __webpack_require__(41)(module), __webpack_require__(5)));
 	      }),
 	      (function(module, exports) {
 	if (typeof Object.create === 'function') {
@@ -13912,437 +14982,6 @@ var Metamon = (function (exports) {
 	    && typeof arg.readUInt8 === 'function';
 	};
 	      }),
-	      (function(module, exports, __webpack_require__) {
-	                           (function(global, process) {
-	var formatRegExp = /%[sdj%]/g;
-	exports.format = function(f) {
-	  if (!isString(f)) {
-	    var objects = [];
-	    for (var i = 0; i < arguments.length; i++) {
-	      objects.push(inspect(arguments[i]));
-	    }
-	    return objects.join(' ');
-	  }
-	  var i = 1;
-	  var args = arguments;
-	  var len = args.length;
-	  var str = String(f).replace(formatRegExp, function(x) {
-	    if (x === '%%') return '%';
-	    if (i >= len) return x;
-	    switch (x) {
-	      case '%s': return String(args[i++]);
-	      case '%d': return Number(args[i++]);
-	      case '%j':
-	        try {
-	          return JSON.stringify(args[i++]);
-	        } catch (_) {
-	          return '[Circular]';
-	        }
-	      default:
-	        return x;
-	    }
-	  });
-	  for (var x = args[i]; i < len; x = args[++i]) {
-	    if (isNull(x) || !isObject(x)) {
-	      str += ' ' + x;
-	    } else {
-	      str += ' ' + inspect(x);
-	    }
-	  }
-	  return str;
-	};
-	exports.deprecate = function(fn, msg) {
-	  if (isUndefined(global.process)) {
-	    return function() {
-	      return exports.deprecate(fn, msg).apply(this, arguments);
-	    };
-	  }
-	  if (process.noDeprecation === true) {
-	    return fn;
-	  }
-	  var warned = false;
-	  function deprecated() {
-	    if (!warned) {
-	      if (process.throwDeprecation) {
-	        throw new Error(msg);
-	      } else if (process.traceDeprecation) {
-	        console.trace(msg);
-	      } else {
-	        console.error(msg);
-	      }
-	      warned = true;
-	    }
-	    return fn.apply(this, arguments);
-	  }
-	  return deprecated;
-	};
-	var debugs = {};
-	var debugEnviron;
-	exports.debuglog = function(set) {
-	  if (isUndefined(debugEnviron))
-	    debugEnviron = process.env.NODE_DEBUG || '';
-	  set = set.toUpperCase();
-	  if (!debugs[set]) {
-	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
-	      var pid = process.pid;
-	      debugs[set] = function() {
-	        var msg = exports.format.apply(exports, arguments);
-	        console.error('%s %d: %s', set, pid, msg);
-	      };
-	    } else {
-	      debugs[set] = function() {};
-	    }
-	  }
-	  return debugs[set];
-	};
-	function inspect(obj, opts) {
-	  var ctx = {
-	    seen: [],
-	    stylize: stylizeNoColor
-	  };
-	  if (arguments.length >= 3) ctx.depth = arguments[2];
-	  if (arguments.length >= 4) ctx.colors = arguments[3];
-	  if (isBoolean(opts)) {
-	    ctx.showHidden = opts;
-	  } else if (opts) {
-	    exports._extend(ctx, opts);
-	  }
-	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-	  if (isUndefined(ctx.depth)) ctx.depth = 2;
-	  if (isUndefined(ctx.colors)) ctx.colors = false;
-	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-	  if (ctx.colors) ctx.stylize = stylizeWithColor;
-	  return formatValue(ctx, obj, ctx.depth);
-	}
-	exports.inspect = inspect;
-	inspect.colors = {
-	  'bold' : [1, 22],
-	  'italic' : [3, 23],
-	  'underline' : [4, 24],
-	  'inverse' : [7, 27],
-	  'white' : [37, 39],
-	  'grey' : [90, 39],
-	  'black' : [30, 39],
-	  'blue' : [34, 39],
-	  'cyan' : [36, 39],
-	  'green' : [32, 39],
-	  'magenta' : [35, 39],
-	  'red' : [31, 39],
-	  'yellow' : [33, 39]
-	};
-	inspect.styles = {
-	  'special': 'cyan',
-	  'number': 'yellow',
-	  'boolean': 'yellow',
-	  'undefined': 'grey',
-	  'null': 'bold',
-	  'string': 'green',
-	  'date': 'magenta',
-	  'regexp': 'red'
-	};
-	function stylizeWithColor(str, styleType) {
-	  var style = inspect.styles[styleType];
-	  if (style) {
-	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-	           '\u001b[' + inspect.colors[style][1] + 'm';
-	  } else {
-	    return str;
-	  }
-	}
-	function stylizeNoColor(str, styleType) {
-	  return str;
-	}
-	function arrayToHash(array) {
-	  var hash = {};
-	  array.forEach(function(val, idx) {
-	    hash[val] = true;
-	  });
-	  return hash;
-	}
-	function formatValue(ctx, value, recurseTimes) {
-	  if (ctx.customInspect &&
-	      value &&
-	      isFunction(value.inspect) &&
-	      value.inspect !== exports.inspect &&
-	      !(value.constructor && value.constructor.prototype === value)) {
-	    var ret = value.inspect(recurseTimes, ctx);
-	    if (!isString(ret)) {
-	      ret = formatValue(ctx, ret, recurseTimes);
-	    }
-	    return ret;
-	  }
-	  var primitive = formatPrimitive(ctx, value);
-	  if (primitive) {
-	    return primitive;
-	  }
-	  var keys = Object.keys(value);
-	  var visibleKeys = arrayToHash(keys);
-	  if (ctx.showHidden) {
-	    keys = Object.getOwnPropertyNames(value);
-	  }
-	  if (isError(value)
-	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-	    return formatError(value);
-	  }
-	  if (keys.length === 0) {
-	    if (isFunction(value)) {
-	      var name = value.name ? ': ' + value.name : '';
-	      return ctx.stylize('[Function' + name + ']', 'special');
-	    }
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    }
-	    if (isDate(value)) {
-	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
-	    }
-	    if (isError(value)) {
-	      return formatError(value);
-	    }
-	  }
-	  var base = '', array = false, braces = ['{', '}'];
-	  if (isArray(value)) {
-	    array = true;
-	    braces = ['[', ']'];
-	  }
-	  if (isFunction(value)) {
-	    var n = value.name ? ': ' + value.name : '';
-	    base = ' [Function' + n + ']';
-	  }
-	  if (isRegExp(value)) {
-	    base = ' ' + RegExp.prototype.toString.call(value);
-	  }
-	  if (isDate(value)) {
-	    base = ' ' + Date.prototype.toUTCString.call(value);
-	  }
-	  if (isError(value)) {
-	    base = ' ' + formatError(value);
-	  }
-	  if (keys.length === 0 && (!array || value.length == 0)) {
-	    return braces[0] + base + braces[1];
-	  }
-	  if (recurseTimes < 0) {
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    } else {
-	      return ctx.stylize('[Object]', 'special');
-	    }
-	  }
-	  ctx.seen.push(value);
-	  var output;
-	  if (array) {
-	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-	  } else {
-	    output = keys.map(function(key) {
-	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-	    });
-	  }
-	  ctx.seen.pop();
-	  return reduceToSingleString(output, base, braces);
-	}
-	function formatPrimitive(ctx, value) {
-	  if (isUndefined(value))
-	    return ctx.stylize('undefined', 'undefined');
-	  if (isString(value)) {
-	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-	                                             .replace(/'/g, "\\'")
-	                                             .replace(/\\"/g, '"') + '\'';
-	    return ctx.stylize(simple, 'string');
-	  }
-	  if (isNumber(value))
-	    return ctx.stylize('' + value, 'number');
-	  if (isBoolean(value))
-	    return ctx.stylize('' + value, 'boolean');
-	  if (isNull(value))
-	    return ctx.stylize('null', 'null');
-	}
-	function formatError(value) {
-	  return '[' + Error.prototype.toString.call(value) + ']';
-	}
-	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-	  var output = [];
-	  for (var i = 0, l = value.length; i < l; ++i) {
-	    if (hasOwnProperty(value, String(i))) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          String(i), true));
-	    } else {
-	      output.push('');
-	    }
-	  }
-	  keys.forEach(function(key) {
-	    if (!key.match(/^\d+$/)) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          key, true));
-	    }
-	  });
-	  return output;
-	}
-	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-	  var name, str, desc;
-	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-	  if (desc.get) {
-	    if (desc.set) {
-	      str = ctx.stylize('[Getter/Setter]', 'special');
-	    } else {
-	      str = ctx.stylize('[Getter]', 'special');
-	    }
-	  } else {
-	    if (desc.set) {
-	      str = ctx.stylize('[Setter]', 'special');
-	    }
-	  }
-	  if (!hasOwnProperty(visibleKeys, key)) {
-	    name = '[' + key + ']';
-	  }
-	  if (!str) {
-	    if (ctx.seen.indexOf(desc.value) < 0) {
-	      if (isNull(recurseTimes)) {
-	        str = formatValue(ctx, desc.value, null);
-	      } else {
-	        str = formatValue(ctx, desc.value, recurseTimes - 1);
-	      }
-	      if (str.indexOf('\n') > -1) {
-	        if (array) {
-	          str = str.split('\n').map(function(line) {
-	            return '  ' + line;
-	          }).join('\n').substr(2);
-	        } else {
-	          str = '\n' + str.split('\n').map(function(line) {
-	            return '   ' + line;
-	          }).join('\n');
-	        }
-	      }
-	    } else {
-	      str = ctx.stylize('[Circular]', 'special');
-	    }
-	  }
-	  if (isUndefined(name)) {
-	    if (array && key.match(/^\d+$/)) {
-	      return str;
-	    }
-	    name = JSON.stringify('' + key);
-	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-	      name = name.substr(1, name.length - 2);
-	      name = ctx.stylize(name, 'name');
-	    } else {
-	      name = name.replace(/'/g, "\\'")
-	                 .replace(/\\"/g, '"')
-	                 .replace(/(^"|"$)/g, "'");
-	      name = ctx.stylize(name, 'string');
-	    }
-	  }
-	  return name + ': ' + str;
-	}
-	function reduceToSingleString(output, base, braces) {
-	  var length = output.reduce(function(prev, cur) {
-	    if (cur.indexOf('\n') >= 0) ;
-	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-	  }, 0);
-	  if (length > 60) {
-	    return braces[0] +
-	           (base === '' ? '' : base + '\n ') +
-	           ' ' +
-	           output.join(',\n  ') +
-	           ' ' +
-	           braces[1];
-	  }
-	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-	}
-	function isArray(ar) {
-	  return Array.isArray(ar);
-	}
-	exports.isArray = isArray;
-	function isBoolean(arg) {
-	  return typeof arg === 'boolean';
-	}
-	exports.isBoolean = isBoolean;
-	function isNull(arg) {
-	  return arg === null;
-	}
-	exports.isNull = isNull;
-	function isNullOrUndefined(arg) {
-	  return arg == null;
-	}
-	exports.isNullOrUndefined = isNullOrUndefined;
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-	exports.isNumber = isNumber;
-	function isString(arg) {
-	  return typeof arg === 'string';
-	}
-	exports.isString = isString;
-	function isSymbol(arg) {
-	  return typeof arg === 'symbol';
-	}
-	exports.isSymbol = isSymbol;
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
-	exports.isUndefined = isUndefined;
-	function isRegExp(re) {
-	  return isObject(re) && objectToString(re) === '[object RegExp]';
-	}
-	exports.isRegExp = isRegExp;
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-	exports.isObject = isObject;
-	function isDate(d) {
-	  return isObject(d) && objectToString(d) === '[object Date]';
-	}
-	exports.isDate = isDate;
-	function isError(e) {
-	  return isObject(e) &&
-	      (objectToString(e) === '[object Error]' || e instanceof Error);
-	}
-	exports.isError = isError;
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-	exports.isFunction = isFunction;
-	function isPrimitive(arg) {
-	  return arg === null ||
-	         typeof arg === 'boolean' ||
-	         typeof arg === 'number' ||
-	         typeof arg === 'string' ||
-	         typeof arg === 'symbol' ||
-	         typeof arg === 'undefined';
-	}
-	exports.isPrimitive = isPrimitive;
-	exports.isBuffer = __webpack_require__(37);
-	function objectToString(o) {
-	  return Object.prototype.toString.call(o);
-	}
-	function pad(n) {
-	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
-	}
-	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-	              'Oct', 'Nov', 'Dec'];
-	function timestamp() {
-	  var d = new Date();
-	  var time = [pad(d.getHours()),
-	              pad(d.getMinutes()),
-	              pad(d.getSeconds())].join(':');
-	  return [d.getDate(), months[d.getMonth()], time].join(' ');
-	}
-	exports.log = function() {
-	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
-	};
-	exports.inherits = __webpack_require__(36);
-	exports._extend = function(origin, add) {
-	  if (!add || !isObject(add)) return origin;
-	  var keys = Object.keys(add);
-	  var i = keys.length;
-	  while (i--) {
-	    origin[keys[i]] = add[keys[i]];
-	  }
-	  return origin;
-	};
-	function hasOwnProperty(obj, prop) {
-	  return Object.prototype.hasOwnProperty.call(obj, prop);
-	}
-	                           }.call(exports, __webpack_require__(7), __webpack_require__(5)));
-	      }),
 	      (function(module, exports) {
 	module.exports = function(module) {
 		if(!module.webpackPolyfill) {
@@ -14374,6 +15013,153 @@ var Metamon = (function (exports) {
 	var joiBrowser$2 = /*#__PURE__*/Object.freeze({
 		default: joiBrowser$1,
 		__moduleExports: joiBrowser
+	});
+
+	var isArray = Array.isArray;
+	var isArray_1 = isArray;
+
+	var isArray$1 = /*#__PURE__*/Object.freeze({
+		default: isArray_1,
+		__moduleExports: isArray_1
+	});
+
+	var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+	var _freeGlobal = freeGlobal;
+
+	var _freeGlobal$1 = /*#__PURE__*/Object.freeze({
+		default: _freeGlobal,
+		__moduleExports: _freeGlobal
+	});
+
+	var freeGlobal$1 = ( _freeGlobal$1 && _freeGlobal ) || _freeGlobal$1;
+
+	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+	var root = freeGlobal$1 || freeSelf || Function('return this')();
+	var _root = root;
+
+	var _root$1 = /*#__PURE__*/Object.freeze({
+		default: _root,
+		__moduleExports: _root
+	});
+
+	var root$1 = ( _root$1 && _root ) || _root$1;
+
+	var Symbol$1 = root$1.Symbol;
+	var _Symbol = Symbol$1;
+
+	var _Symbol$1 = /*#__PURE__*/Object.freeze({
+		default: _Symbol,
+		__moduleExports: _Symbol
+	});
+
+	var Symbol$2 = ( _Symbol$1 && _Symbol ) || _Symbol$1;
+
+	var objectProto = Object.prototype;
+	var hasOwnProperty = objectProto.hasOwnProperty;
+	var nativeObjectToString = objectProto.toString;
+	var symToStringTag = Symbol$2 ? Symbol$2.toStringTag : undefined;
+	function getRawTag(value) {
+	  var isOwn = hasOwnProperty.call(value, symToStringTag),
+	      tag = value[symToStringTag];
+	  try {
+	    value[symToStringTag] = undefined;
+	  } catch (e) {}
+	  var result = nativeObjectToString.call(value);
+	  {
+	    if (isOwn) {
+	      value[symToStringTag] = tag;
+	    } else {
+	      delete value[symToStringTag];
+	    }
+	  }
+	  return result;
+	}
+	var _getRawTag = getRawTag;
+
+	var _getRawTag$1 = /*#__PURE__*/Object.freeze({
+		default: _getRawTag,
+		__moduleExports: _getRawTag
+	});
+
+	var objectProto$1 = Object.prototype;
+	var nativeObjectToString$1 = objectProto$1.toString;
+	function objectToString(value) {
+	  return nativeObjectToString$1.call(value);
+	}
+	var _objectToString = objectToString;
+
+	var _objectToString$1 = /*#__PURE__*/Object.freeze({
+		default: _objectToString,
+		__moduleExports: _objectToString
+	});
+
+	var getRawTag$1 = ( _getRawTag$1 && _getRawTag ) || _getRawTag$1;
+
+	var objectToString$1 = ( _objectToString$1 && _objectToString ) || _objectToString$1;
+
+	var nullTag = '[object Null]',
+	    undefinedTag = '[object Undefined]';
+	var symToStringTag$1 = Symbol$2 ? Symbol$2.toStringTag : undefined;
+	function baseGetTag(value) {
+	  if (value == null) {
+	    return value === undefined ? undefinedTag : nullTag;
+	  }
+	  return (symToStringTag$1 && symToStringTag$1 in Object(value))
+	    ? getRawTag$1(value)
+	    : objectToString$1(value);
+	}
+	var _baseGetTag = baseGetTag;
+
+	var _baseGetTag$1 = /*#__PURE__*/Object.freeze({
+		default: _baseGetTag,
+		__moduleExports: _baseGetTag
+	});
+
+	function isObjectLike(value) {
+	  return value != null && typeof value == 'object';
+	}
+	var isObjectLike_1 = isObjectLike;
+
+	var isObjectLike$1 = /*#__PURE__*/Object.freeze({
+		default: isObjectLike_1,
+		__moduleExports: isObjectLike_1
+	});
+
+	var baseGetTag$1 = ( _baseGetTag$1 && _baseGetTag ) || _baseGetTag$1;
+
+	var isObjectLike$2 = ( isObjectLike$1 && isObjectLike_1 ) || isObjectLike$1;
+
+	var numberTag = '[object Number]';
+	function isNumber(value) {
+	  return typeof value == 'number' ||
+	    (isObjectLike$2(value) && baseGetTag$1(value) == numberTag);
+	}
+	var isNumber_1 = isNumber;
+
+	var isNumber$1 = /*#__PURE__*/Object.freeze({
+		default: isNumber_1,
+		__moduleExports: isNumber_1
+	});
+
+	function isObject(value) {
+	  var type = typeof value;
+	  return value != null && (type == 'object' || type == 'function');
+	}
+	var isObject_1 = isObject;
+
+	var isObject$1 = /*#__PURE__*/Object.freeze({
+		default: isObject_1,
+		__moduleExports: isObject_1
+	});
+
+	function isUndefined(value) {
+	  return value === undefined;
+	}
+	var isUndefined_1 = isUndefined;
+
+	var isUndefined$1 = /*#__PURE__*/Object.freeze({
+		default: isUndefined_1,
+		__moduleExports: isUndefined_1
 	});
 
 	var lookup = [];
@@ -14535,7 +15321,7 @@ var Metamon = (function (exports) {
 	}
 
 	var toString = {}.toString;
-	var isArray = Array.isArray || function (arr) {
+	var isArray$2 = Array.isArray || function (arr) {
 	  return toString.call(arr) == '[object Array]';
 	};
 
@@ -14709,7 +15495,7 @@ var Metamon = (function (exports) {
 	      }
 	      return fromArrayLike(that, obj)
 	    }
-	    if (obj.type === 'Buffer' && isArray(obj.data)) {
+	    if (obj.type === 'Buffer' && isArray$2(obj.data)) {
 	      return fromArrayLike(that, obj.data)
 	    }
 	  }
@@ -14763,7 +15549,7 @@ var Metamon = (function (exports) {
 	  }
 	};
 	Buffer$1.concat = function concat (list, length) {
-	  if (!isArray(list)) {
+	  if (!isArray$2(list)) {
 	    throw new TypeError('"list" argument must be an Array of Buffers')
 	  }
 	  if (list.length === 0) {
@@ -16152,7 +16938,7 @@ var Metamon = (function (exports) {
 	    }
 	  });
 	  for (var x = args[i]; i < len; x = args[++i]) {
-	    if (isNull(x) || !isObject(x)) {
+	    if (isNull(x) || !isObject$2(x)) {
 	      str += ' ' + x;
 	    } else {
 	      str += ' ' + inspect(x);
@@ -16160,22 +16946,15 @@ var Metamon = (function (exports) {
 	  }
 	  return str;
 	}function deprecate(fn, msg) {
-	  if (isUndefined(global.process)) {
+	  if (isUndefined$2(global.process)) {
 	    return function() {
 	      return deprecate(fn, msg).apply(this, arguments);
 	    };
 	  }
-	  if (process$1.noDeprecation === true) {
-	    return fn;
-	  }
 	  var warned = false;
 	  function deprecated() {
 	    if (!warned) {
-	      if (process$1.throwDeprecation) {
-	        throw new Error(msg);
-	      } else if (process$1.traceDeprecation) {
-	        console.trace(msg);
-	      } else {
+	      {
 	        console.error(msg);
 	      }
 	      warned = true;
@@ -16186,7 +16965,7 @@ var Metamon = (function (exports) {
 	}var debugs = {};
 	var debugEnviron;
 	function debuglog(set) {
-	  if (isUndefined(debugEnviron))
+	  if (isUndefined$2(debugEnviron))
 	    debugEnviron = process$1.env.NODE_DEBUG || '';
 	  set = set.toUpperCase();
 	  if (!debugs[set]) {
@@ -16213,10 +16992,10 @@ var Metamon = (function (exports) {
 	  } else if (opts) {
 	    _extend(ctx, opts);
 	  }
-	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-	  if (isUndefined(ctx.depth)) ctx.depth = 2;
-	  if (isUndefined(ctx.colors)) ctx.colors = false;
-	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (isUndefined$2(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined$2(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined$2(ctx.colors)) ctx.colors = false;
+	  if (isUndefined$2(ctx.customInspect)) ctx.customInspect = true;
 	  if (ctx.colors) ctx.stylize = stylizeWithColor;
 	  return formatValue(ctx, obj, ctx.depth);
 	}
@@ -16305,7 +17084,7 @@ var Metamon = (function (exports) {
 	    }
 	  }
 	  var base = '', array = false, braces = ['{', '}'];
-	  if (isArray$1(value)) {
+	  if (isArray$3(value)) {
 	    array = true;
 	    braces = ['[', ']'];
 	  }
@@ -16345,7 +17124,7 @@ var Metamon = (function (exports) {
 	  return reduceToSingleString(output, base, braces);
 	}
 	function formatPrimitive(ctx, value) {
-	  if (isUndefined(value))
+	  if (isUndefined$2(value))
 	    return ctx.stylize('undefined', 'undefined');
 	  if (isString(value)) {
 	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
@@ -16353,7 +17132,7 @@ var Metamon = (function (exports) {
 	                                             .replace(/\\"/g, '"') + '\'';
 	    return ctx.stylize(simple, 'string');
 	  }
-	  if (isNumber(value))
+	  if (isNumber$2(value))
 	    return ctx.stylize('' + value, 'number');
 	  if (isBoolean(value))
 	    return ctx.stylize('' + value, 'boolean');
@@ -16366,7 +17145,7 @@ var Metamon = (function (exports) {
 	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
 	  var output = [];
 	  for (var i = 0, l = value.length; i < l; ++i) {
-	    if (hasOwnProperty(value, String(i))) {
+	    if (hasOwnProperty$1(value, String(i))) {
 	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
 	          String(i), true));
 	    } else {
@@ -16395,7 +17174,7 @@ var Metamon = (function (exports) {
 	      str = ctx.stylize('[Setter]', 'special');
 	    }
 	  }
-	  if (!hasOwnProperty(visibleKeys, key)) {
+	  if (!hasOwnProperty$1(visibleKeys, key)) {
 	    name = '[' + key + ']';
 	  }
 	  if (!str) {
@@ -16420,7 +17199,7 @@ var Metamon = (function (exports) {
 	      str = ctx.stylize('[Circular]', 'special');
 	    }
 	  }
-	  if (isUndefined(name)) {
+	  if (isUndefined$2(name)) {
 	    if (array && key.match(/^\d+$/)) {
 	      return str;
 	    }
@@ -16452,7 +17231,7 @@ var Metamon = (function (exports) {
 	  }
 	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
 	}
-	function isArray$1(ar) {
+	function isArray$3(ar) {
 	  return Array.isArray(ar);
 	}
 	function isBoolean(arg) {
@@ -16464,7 +17243,7 @@ var Metamon = (function (exports) {
 	function isNullOrUndefined(arg) {
 	  return arg == null;
 	}
-	function isNumber(arg) {
+	function isNumber$2(arg) {
 	  return typeof arg === 'number';
 	}
 	function isString(arg) {
@@ -16473,21 +17252,21 @@ var Metamon = (function (exports) {
 	function isSymbol(arg) {
 	  return typeof arg === 'symbol';
 	}
-	function isUndefined(arg) {
+	function isUndefined$2(arg) {
 	  return arg === void 0;
 	}
 	function isRegExp(re) {
-	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	  return isObject$2(re) && objectToString$2(re) === '[object RegExp]';
 	}
-	function isObject(arg) {
+	function isObject$2(arg) {
 	  return typeof arg === 'object' && arg !== null;
 	}
 	function isDate(d) {
-	  return isObject(d) && objectToString(d) === '[object Date]';
+	  return isObject$2(d) && objectToString$2(d) === '[object Date]';
 	}
 	function isError(e) {
-	  return isObject(e) &&
-	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	  return isObject$2(e) &&
+	      (objectToString$2(e) === '[object Error]' || e instanceof Error);
 	}
 	function isFunction(arg) {
 	  return typeof arg === 'function';
@@ -16503,7 +17282,7 @@ var Metamon = (function (exports) {
 	function isBuffer$1(maybeBuf) {
 	  return Buffer.isBuffer(maybeBuf);
 	}
-	function objectToString(o) {
+	function objectToString$2(o) {
 	  return Object.prototype.toString.call(o);
 	}
 	function pad(n) {
@@ -16522,14 +17301,14 @@ var Metamon = (function (exports) {
 	  console.log('%s - %s', timestamp(), format.apply(null, arguments));
 	}
 	function _extend(origin, add) {
-	  if (!add || !isObject(add)) return origin;
+	  if (!add || !isObject$2(add)) return origin;
 	  var keys = Object.keys(add);
 	  var i = keys.length;
 	  while (i--) {
 	    origin[keys[i]] = add[keys[i]];
 	  }
 	  return origin;
-	}function hasOwnProperty(obj, prop) {
+	}function hasOwnProperty$1(obj, prop) {
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 	var util = {
@@ -16541,16 +17320,16 @@ var Metamon = (function (exports) {
 	  isFunction: isFunction,
 	  isError: isError,
 	  isDate: isDate,
-	  isObject: isObject,
+	  isObject: isObject$2,
 	  isRegExp: isRegExp,
-	  isUndefined: isUndefined,
+	  isUndefined: isUndefined$2,
 	  isSymbol: isSymbol,
 	  isString: isString,
-	  isNumber: isNumber,
+	  isNumber: isNumber$2,
 	  isNullOrUndefined: isNullOrUndefined,
 	  isNull: isNull,
 	  isBoolean: isBoolean,
-	  isArray: isArray$1,
+	  isArray: isArray$3,
 	  inspect: inspect,
 	  deprecate: deprecate,
 	  format: format,
@@ -16562,16 +17341,16 @@ var Metamon = (function (exports) {
 		deprecate: deprecate,
 		debuglog: debuglog,
 		inspect: inspect,
-		isArray: isArray$1,
+		isArray: isArray$3,
 		isBoolean: isBoolean,
 		isNull: isNull,
 		isNullOrUndefined: isNullOrUndefined,
-		isNumber: isNumber,
+		isNumber: isNumber$2,
 		isString: isString,
 		isSymbol: isSymbol,
-		isUndefined: isUndefined,
+		isUndefined: isUndefined$2,
 		isRegExp: isRegExp,
-		isObject: isObject,
+		isObject: isObject$2,
 		isDate: isDate,
 		isError: isError,
 		isFunction: isFunction,
@@ -17422,6 +18201,9 @@ var Metamon = (function (exports) {
 	    return copy;
 	};
 	exports.deepEqual = function (obj, ref, options, seen) {
+	    if (obj === ref) {
+	        return obj !== 0 || 1 / obj === 1 / ref;
+	    }
 	    options = options || { prototype: true };
 	    const type = typeof obj;
 	    if (type !== typeof ref) {
@@ -17430,9 +18212,6 @@ var Metamon = (function (exports) {
 	    if (type !== 'object' ||
 	        obj === null ||
 	        ref === null) {
-	        if (obj === ref) {
-	            return obj !== 0 || 1 / obj === 1 / ref;
-	        }
 	        return obj !== obj && ref !== ref;
 	    }
 	    seen = seen || [];
@@ -17880,13 +18659,7 @@ var Metamon = (function (exports) {
 	    }
 	};
 	exports.shallow = function (source) {
-	    const target = {};
-	    const keys = Object.keys(source);
-	    for (let i = 0; i < keys.length; ++i) {
-	        const key = keys[i];
-	        target[key] = source[key];
-	    }
-	    return target;
+	    return Object.assign({}, source);
 	};
 	exports.wait = function (timeout) {
 	    return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -17981,6 +18754,14 @@ var Metamon = (function (exports) {
 
 	var Joi = ( joiBrowser$2 && joiBrowser$1 ) || joiBrowser$2;
 
+	var isArray$4 = ( isArray$1 && isArray_1 ) || isArray$1;
+
+	var isNumber$3 = ( isNumber$1 && isNumber_1 ) || isNumber$1;
+
+	var isObject$3 = ( isObject$1 && isObject_1 ) || isObject$1;
+
+	var isUndefined$3 = ( isUndefined$1 && isUndefined_1 ) || isUndefined$1;
+
 	var require$$0 = ( lib$1 && lib ) || lib$1;
 
 	const {assert: assert$2} = require$$0;
@@ -17991,7 +18772,7 @@ var Metamon = (function (exports) {
 	  refineType: Joi.func().allow(null),
 	  strictMode: Joi.boolean().default(false)
 	});
-	function enjoi(schema, options = {}) {
+	var enjoi = function(schema, options = {}) {
 	  const validateSchema = Joi.validate(schema, schemaSchema);
 	  assert$2(!validateSchema.error, validateSchema.error);
 	  const validateOptions = Joi.validate(options, optionsSchema);
@@ -18026,7 +18807,7 @@ var Metamon = (function (exports) {
 	    return Joi.any();
 	  }
 	  function resolveAsArray(value) {
-	    if (lodash.isArray(value)) {
+	    if (isArray$4(value)) {
 	      return value.map(function (v) { return resolve(v); });
 	    }
 	    return [resolve(value)];
@@ -18089,7 +18870,7 @@ var Metamon = (function (exports) {
 	      assert$2(joischema, 'Could not resolve type: ' + current.type + '.');
 	      return joischema.strict(strictMode);
 	    }
-	    if (lodash.isArray(current.type)) {
+	    if (isArray$4(current.type)) {
 	      const schemas = [];
 	      for (let i = 0; i < current.type.length; i++) {
 	        schemas.push(joitype(current.type[i], current.format));
@@ -18107,13 +18888,13 @@ var Metamon = (function (exports) {
 	    return joischema;
 	  }
 	  function resolveAnyOf(current) {
-	    assert$2(lodash.isArray(current.anyOf), 'Expected anyOf to be an array.');
+	    assert$2(isArray$4(current.anyOf), 'Expected anyOf to be an array.');
 	    return Joi.alternatives().try(current.anyOf.map(function (schema) {
 	      return resolve(schema);
 	    }));
 	  }
 	  function resolveAllOf(current) {
-	    assert$2(lodash.isArray(current.allOf), 'Expected allOf to be an array.');
+	    assert$2(isArray$4(current.allOf), 'Expected allOf to be an array.');
 	    const type = getSchemaType(current.allOf[0]);
 	    current.allOf.map(function (schema) {
 	      const _type = getSchemaType(schema);
@@ -18128,20 +18909,20 @@ var Metamon = (function (exports) {
 	    }
 	  }
 	  function resolveOneOf(current) {
-	    assert$2(lodash.isArray(current.oneOf), 'Expected allOf to be an array.');
+	    assert$2(isArray$4(current.oneOf), 'Expected allOf to be an array.');
 	    return Joi.alternatives().try(current.oneOf.map(function (schema) {
 	      return resolve(schema);
 	    })).required();
 	  }
 	  function resolveNot(current) {
-	    assert$2(lodash.isArray(current.not), 'Expected Not to be an array.');
+	    assert$2(isArray$4(current.not), 'Expected Not to be an array.');
 	    return Joi.alternatives().when(Joi.alternatives().try(current.not.map(function (schema) {
 	      return resolve(schema);
 	    })), {then: Joi.any().forbidden(), otherwise: Joi.any()});
 	  }
 	  function resolveproperties(current) {
 	    const schemas = {};
-	    if (!lodash.isObject(current.properties)) {
+	    if (!isObject$3(current.properties)) {
 	      return;
 	    }
 	    Object.keys(current.properties).forEach(function (key) {
@@ -18159,11 +18940,11 @@ var Metamon = (function (exports) {
 	    if (current.additionalProperties === true) {
 	      joischema = joischema.unknown(true);
 	    }
-	    if (lodash.isObject(current.additionalProperties)) {
+	    if (isObject$3(current.additionalProperties)) {
 	      joischema = joischema.pattern(/^/, resolve(current.additionalProperties));
 	    }
-	    lodash.isNumber(current.minProperties) && (joischema = joischema.min(current.minProperties));
-	    lodash.isNumber(current.maxProperties) && (joischema = joischema.max(current.maxProperties));
+	    isNumber$3(current.minProperties) && (joischema = joischema.min(current.minProperties));
+	    isNumber$3(current.maxProperties) && (joischema = joischema.max(current.maxProperties));
 	    return joischema;
 	  }
 	  function array(current) {
@@ -18180,8 +18961,8 @@ var Metamon = (function (exports) {
 	    if (items && current.additionalItems === false) {
 	      joischema = joischema.max(items.length);
 	    }
-	    lodash.isNumber(current.minItems) && (joischema = joischema.min(current.minItems));
-	    lodash.isNumber(current.maxItems) && (joischema = joischema.max(current.maxItems));
+	    isNumber$3(current.minItems) && (joischema = joischema.min(current.minItems));
+	    isNumber$3(current.maxItems) && (joischema = joischema.max(current.maxItems));
 	    if (current.uniqueItems) {
 	      joischema = joischema.unique();
 	    }
@@ -18192,11 +18973,11 @@ var Metamon = (function (exports) {
 	    if (current.type === 'integer') {
 	      joischema = joischema.integer();
 	    }
-	    lodash.isNumber(current.minimum) && (joischema = joischema.min(current.minimum));
-	    lodash.isNumber(current.maximum) && (joischema = joischema.max(current.maximum));
-	    lodash.isNumber(current.exclusiveMinimum) && (joischema = joischema.greater(current.exclusiveMinimum));
-	    lodash.isNumber(current.exclusiveMaximum) && (joischema = joischema.less(current.exclusiveMaximum));
-	    lodash.isNumber(current.multipleOf) && current.multipleOf !== 0 && (joischema = joischema.multiple(current.multipleOf));
+	    isNumber$3(current.minimum) && (joischema = joischema.min(current.minimum));
+	    isNumber$3(current.maximum) && (joischema = joischema.max(current.maximum));
+	    isNumber$3(current.exclusiveMinimum) && (joischema = joischema.greater(current.exclusiveMinimum));
+	    isNumber$3(current.exclusiveMaximum) && (joischema = joischema.less(current.exclusiveMaximum));
+	    isNumber$3(current.multipleOf) && current.multipleOf !== 0 && (joischema = joischema.multiple(current.multipleOf));
 	    return joischema;
 	  }
 	  function string(current) {
@@ -18233,16 +19014,16 @@ var Metamon = (function (exports) {
 	  }
 	  function regularString(current, joischema) {
 	    current.pattern && (joischema = joischema.regex(new RegExp(current.pattern)));
-	    if (lodash.isUndefined(current.minLength)) {
+	    if (isUndefined$3(current.minLength)) {
 	      current.minLength = 0;
 	    }
-	    if (lodash.isNumber(current.minLength)) {
+	    if (isNumber$3(current.minLength)) {
 	      if (current.minLength === 0) {
 	        joischema = joischema.allow('');
 	      }
 	      joischema = joischema.min(current.minLength);
 	    }
-	    lodash.isNumber(current.maxLength) && (joischema = joischema.max(current.maxLength));
+	    isNumber$3(current.maxLength) && (joischema = joischema.max(current.maxLength));
 	    return joischema;
 	  }
 	  function date(current) {
@@ -18299,8 +19080,7 @@ var Metamon = (function (exports) {
 	    return result;
 	  }
 	  return resolve(schema);
-	}
-	var enjoi_1 = enjoi;
+	};
 
 	var _defaults = Symbol('defaults');
 	var _schema = Symbol('schema');
@@ -18324,7 +19104,7 @@ var Metamon = (function (exports) {
 	    _this[_views] = {};
 	    _this[_defaults] = options.defaults;
 	    if (options.schema) {
-	      _this[_schema] = enjoi_1(Object.assign({}, {
+	      _this[_schema] = enjoi(Object.assign({}, {
 	        type: 'object',
 	        properties: options.schema,
 	        strictMode: true

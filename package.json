@@ -45,7 +45,7 @@
     "uuid": "3.x.x"
   },
   "devDependencies": {
-    "ava": "1.0.0-beta.4",
+    "ava": "^1.0.0-beta.7",
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-loader": "7.x.x",
@@ -65,14 +65,14 @@
     "nyc": "11.x.x",
     "rollup": "0.x.x",
     "rollup-plugin-babel": "2.x.x",
-    "rollup-plugin-cleanup": "^3.0.0-beta.1",
+    "rollup-plugin-cleanup": "3.x.x",
     "rollup-plugin-commonjs": "8.x.x",
     "rollup-plugin-eslint": "4.x.x",
     "rollup-plugin-json": "2.x.x",
     "rollup-plugin-node-builtins": "2.x.x",
     "rollup-plugin-node-resolve": "3.x.x",
     "rollup-plugin-uglify": "3.x.x",
-    "sinon": "^6.1.5",
+    "sinon": "6.x.x",
     "tap-notify": "1.x.x"
   },
   "ava": {
