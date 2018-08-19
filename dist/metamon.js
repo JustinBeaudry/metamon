@@ -18635,10 +18635,29 @@ var Metamon = (function (exports) {
 	  Object.assign(this, defineProperty({}, value, value));
 	}
 
+	function ErrorFactory() {
+	  var ErrorClass = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Error;
+	  return function (_ErrorClass) {
+	    inherits(CustomError, _ErrorClass);
+	    function CustomError() {
+	      var _ref;
+	      classCallCheck(this, CustomError);
+	      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
+	      }
+	      var _this = possibleConstructorReturn(this, (_ref = CustomError.__proto__ || Object.getPrototypeOf(CustomError)).call.apply(_ref, [this].concat(args)));
+	      Error.captureStackTrace(_this, CustomError);
+	      return _this;
+	    }
+	    return CustomError;
+	  }(ErrorClass);
+	}
+
 	exports.Model = Model;
 	exports.Collection = Collection;
 	exports.Enum = Enum;
 	exports.Serializable = Serializable;
+	exports.ErrorFactory = ErrorFactory;
 
 	return exports;
 
