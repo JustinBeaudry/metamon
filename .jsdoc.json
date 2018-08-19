@@ -8,6 +8,7 @@
       "src/Collection.js",
       "src/Enum.js",
       "src/Serializable.js",
+      "src/ErrorFactory.js",
       "src/errors.js"
     ],
     "exclude": [

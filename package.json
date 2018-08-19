@@ -1,6 +1,6 @@
 {
   "name": "metamon",
-  "version": "2.4.0",
+  "version": "2.6.0",
   "description": "model, and collection library for class based or pojo models",
   "main": "index.js",
   "browser": "dist/metamon.min.js",
@@ -72,6 +72,7 @@
     "rollup-plugin-node-builtins": "2.x.x",
     "rollup-plugin-node-resolve": "3.x.x",
     "rollup-plugin-uglify": "3.x.x",
+    "sinon": "^6.1.5",
     "tap-notify": "1.x.x"
   },
   "ava": {

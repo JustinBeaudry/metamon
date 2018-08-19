@@ -1,8 +1,11 @@
+import ErrorFactory from './ErrorFactory';
 /**
  *
- * @extends Error
+ * @class
+ * @ignore
+ *
  */
-export class UnsupportedError extends Error {
+class UnsupportedErrorConstructor extends Error {
   /**
    *
    * @desc An Error that is thrown when values that are not supported in an Enum are used
@@ -10,18 +13,15 @@ export class UnsupportedError extends Error {
    */
   constructor(value) {
     super(`Unsupported value for enum value:  ${value}`);
-
-    // maintain stack trace from where the error was thrown; v8 only
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, UnsupportedError);
-    }
   }
 }
 /**
  *
- * @extends Error
+ * @class
+ * @ignore
+ *
  */
-export class MissingIndexError extends Error {
+class MissingIndexErrorConstructor extends Error {
   /**
    *
    * @desc An Error that is thrown when a Model to be added to a Collection is missing the index field
@@ -30,11 +30,17 @@ export class MissingIndexError extends Error {
    */
   constructor(model, indexBy) {
     super(`Model ${model.toJSON()} is missing index ${indexBy}`);
-
-
-    // maintain stack trace from where the error was thrown; v8 only
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, MissingIndexError);
-    }
   }
 }
+
+/**
+ *
+ * @class UnsupportedError
+ * @type {Error}
+ */
+export const UnsupportedError = ErrorFactory(null, UnsupportedErrorConstructor);
+/**
+ * @class MissingIndexError
+ * @type {Error}
+ */
+export const MissingIndexError = ErrorFactory(null, MissingIndexErrorConstructor);
